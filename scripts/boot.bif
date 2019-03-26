@@ -1,0 +1,7 @@
+//arch = zynq; split = false; format = BIN
+the_ROM_image:
+{
+	[bootloader]/home/mdelong20/proj/ups/ups.sdk/fsbl/Debug/fsbl.elf
+	/home/mdelong20/proj/ups/ups.runs/impl_1/ups.bit
+	/home/mdelong20/projects/scratch/u-boot-xlnx/u-boot.elf
+}

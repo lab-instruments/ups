@@ -1,0 +1,13 @@
+machine_name=zynq-artyz7
+data_kernel=uImage
+addr_kernel=0x4000000
+data_dt=zynq-artyz7.dtb
+addr_dt=0x3600000
+data_rfs=rootfs
+addr_rfs=0x2000000
+bootargs=earlyprintk console=ttyPS0,115200 root=/dev/mmcblk0p2 rw rootwait
+loadk=fatload mmc 0 ${addr_kernel}  ${data_kernel}
+loadd=fatload mmc 0 ${addr_dt}      ${data_dt}
+loadr=fatload mmc 0 ${addr_rfs}     ${data_rfs}
+bootkernel=run loadk && run loadd && run loadr && bootm ${addr_kernel} ${addr_rfs} ${addr_dt}
+uenvcmd=run bootkernel
