@@ -42,7 +42,6 @@ module ups(
     output              dac_sclk,
     output              dac_dout,
     output              dac_cs_n,
-    output              dac_ldac_n,
 
     // -------------------------------------------------------------------------
     //  ADC SPI Interface
@@ -201,8 +200,7 @@ module ups(
         // ---------------------------------------------------------------------
         .sclk                          (dac_sclk),
         .dout                          (dac_dout),
-        .cs_n                          (dac_cs_n),
-        .ldac_n                        (dac_ldac_n)
+        .cs_n                          (dac_cs_n)
 
     );
 

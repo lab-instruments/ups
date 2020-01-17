@@ -4,9 +4,9 @@ set_property PACKAGE_PIN M15 [get_ports {led[1]}]
 set_property PACKAGE_PIN L14 [get_ports {led[0]}]
 
 # JA TOP ROW --- DAC
-set_property PACKAGE_PIN Y18 [get_ports {dac_cs_n}  ]
-set_property PACKAGE_PIN Y19 [get_ports {dac_dout0} ]
-set_property PACKAGE_PIN Y17 [get_ports {dac_sclk}  ]
+set_property PACKAGE_PIN Y18 [get_ports {dac_cs_n} ]
+set_property PACKAGE_PIN Y19 [get_ports {dac_dout} ]
+set_property PACKAGE_PIN Y17 [get_ports {dac_sclk} ]
 
 # JA BOTTOM ROW --- ADC
 set_property PACKAGE_PIN U18 [get_ports {adc_cs_n}]
@@ -23,7 +23,6 @@ set_property IOSTANDARD LVCMOS33 [get_ports {led[2]}]
 
 set_property IOSTANDARD LVCMOS33 [get_ports {dac_cs_n}]
 set_property IOSTANDARD LVCMOS33 [get_ports {dac_dout}]
-set_property IOSTANDARD LVCMOS33 [get_ports {dac_ldac_n}]
 set_property IOSTANDARD LVCMOS33 [get_ports {dac_sclk}]
 
 set_property IOSTANDARD LVCMOS33 [get_ports {adc_cs_n}]

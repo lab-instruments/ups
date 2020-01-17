@@ -30,14 +30,15 @@ proc help {} {
 
 if { $::argc > 0 } {
     for {set i 0} {$i < $::argc} {incr i} {
+        puts $option
         set option [string trim [lindex $::argv $i]]
         switch -regexp -- $option {
             "--build_dir"    { incr i; set ORIGIN [lindex $::argv $i] }
             "--help"         { help }
             default {
                 if { [regexp {^-} $option] } {
-                    puts "ERROR: Unknown option '$option' specified.\n"
-                    return 1
+                    puts "WARNING: Ignore '$option'.\n"
+                    incr i
                 }
             }
         }
@@ -56,7 +57,7 @@ set bCheckIPsPassed 1
 ##################################################################
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
-   set list_check_ips "\ 
+   set list_check_ips "\
 xilinx.com:ip:axi_gpio:2.0\
 xilinx.com:ip:processing_system7:5.5\
 xilinx.com:ip:proc_sys_reset:5.0\

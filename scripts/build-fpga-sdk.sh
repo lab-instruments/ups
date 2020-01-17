@@ -10,10 +10,6 @@ source ./setup.sh
 source ${XVIV}/settings64.sh
 
 # ------------------------------------------------------------------------------
-#  Generate Project
+#  Generate SDK/BSP/FSBL
 # ------------------------------------------------------------------------------
-${VIV_EXE} -mode batch                                                        \
-           -nojournal                                                         \
-           -nolog                                                             \
-           -notrace                                                           \
-           -source ../fpga/proj/ups.tcl -tclargs --build_dir ${BD}/fpga --deploy_dir ${DD} --sdk_dir ${BD}/sdk
+${SDK_EXE} -batch -source sdk.tcl --build_dir ${BD}/sdk
