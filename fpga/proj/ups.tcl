@@ -14,9 +14,6 @@ set SCRIPT_NAME "ups.tcl"
 # Set Board Name
 set BOARD_NAME "coraz7"
 
-# Set Deploy Enable
-set DEPLOY ""
-
 # Set the SDK Generation Enable
 set SDK ""
 
@@ -28,16 +25,14 @@ proc help {} {
     puts "   $SCRIPT_NAME"
     puts "   $SCRIPT_NAME -tclargs \[--build_dir <path>\]"
     puts "   $SCRIPT_NAME -tclargs \[--project_name <name>\]"
-    puts "   $SCRIPT_NAME -tclargs \[--board_name <name>\]"
-    puts "   $SCRIPT_NAME -tclargs \[--deploy <name>\]"
+    puts "   $SCRIPT_NAME -tclargs \[--board <name>\]"
     puts "   $SCRIPT_NAME -tclargs \[--help\]\n"
     puts "Usage:"
     puts "Name                   Description"
     puts "-------------------------------------------------------------------------"
     puts "\[--build_dir <path>\]     Set the build root path.\n"
     puts "\[--project_name <name>\]  Set project name.\n"
-    puts "\[--board_name <name>\]    Set board.\n"
-    puts "\[--deploy_dir <name>\]    Set directory to copy output products.\n"
+    puts "\[--board <name>\]         Set board.\n"
     puts "\[--sdk_dir\]              Enable Xilinx SDK generation.\n"
     puts "\[--help\]                 Print help information for this script.\n"
     puts "-------------------------------------------------------------------------\n"
@@ -48,12 +43,10 @@ proc help {} {
 if { $::argc > 0 } {
     for {set i 0} {$i < $::argc} {incr i} {
         set option [string trim [lindex $::argv $i]]
-        puts $option
         switch -regexp -- $option {
             "--build_dir" { incr i; set ORIGIN [lindex $::argv $i] }
             "--project_name" { incr i; set PROJ_NAME [lindex $::argv $i] }
-            "--board_name" { incr i; set BOARD_NAME [lindex $::argv $i] }
-            "--deploy_dir" { incr i; set DEPLOY [lindex $::argv $i] }
+            "--board" { incr i; set BOARD_NAME [lindex $::argv $i] }
             "--sdk_dir" { incr i; set SDK [lindex $::argv $i] }
             "--help" { help }
             default {
@@ -76,7 +69,7 @@ if { ${BOARD_NAME} != "artyz7" && ${BOARD_NAME} != "coraz7" } {
 set PROJ_PATH "[file normalize "$ORIGIN/ups"]"
 
 # Create Project
-create_project ${PROJ_NAME} ${PROJ_PATH}
+create_project ${PROJ_NAME} ${PROJ_PATH} -force
 
 # Set Project Properties
 set obj [current_project]
@@ -256,14 +249,9 @@ if { ${BOARD_NAME} == "Z7" } {
 launch_runs impl_1 -to_step write_bitstream
 wait_on_run impl_1
 
-puts 'HI'
-
-puts "${SDK}"
-write_hwdef -force -file ${SDK}/hw.hdf
 # ------------------------------------------------------------------------------
-#  Deploy if Requested
+#  Generate HW Definition if Requested
 # ------------------------------------------------------------------------------
-# set DEPLOY_EN [ string compare ${DEPLOY} "" ]
 set SDK_EN [ string compare ${SDK} "" ]
 if { ${SDK_EN} != 0 } {
         write_hwdef -force -file ${SDK}/hw.hdf

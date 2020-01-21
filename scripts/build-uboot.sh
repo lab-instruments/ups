@@ -4,16 +4,17 @@
 
 # Source Utility Files
 source ./utils.sh
+source ./setup.sh
 
 # Usage Print
 function usage() {
     echo
     echo " U-Boot Script Usage"
-    echo "   build-uboot.sh --build-dir=<DIR> --log-dir=<DIR> --dst-dir=<DIR> --board=<BOARD>"
-    echo "     build-dir :  Location to build u-boot          {default=.}"
-    echo "     log-dir   :  Location to write log file        {default=.}"
-    echo "     deploy    :  Location to write output products {default=NONE}"
-    echo "     board     :  Board type {coraz7/artyz7}        {default=coraz7}"
+    echo "   build-uboot.sh --build_dir=<DIR> --log_dir=<DIR> --deploy_dir=<DIR> --board=<BOARD>"
+    echo "     build_dir  :  Location to build u-boot          {default=.}"
+    echo "     log_dir    :  Location to write log file        {default=.}"
+    echo "     deploy_dir :  Location to write output products {default=NONE}"
+    echo "     board      :  Board type {coraz7/artyz7}        {default=coraz7}"
     echo
 }
 
@@ -35,17 +36,17 @@ for i in "$@" ; do
 #             shift # past argument=value
 #             ;;
 
-        --build-dir=*)
+        --build_dir=*)
             BUILD_DIR="${i#*=}"
             shift
             ;;
 
-        --log-dir=*)
+        --log_dir=*)
             LOG_DIR="${i#*=}"
             shift
             ;;
 
-        --deploy=*)
+        --deploy_dir=*)
             DST_DIR="${i#*=}"
             shift
             ;;
@@ -64,34 +65,40 @@ for i in "$@" ; do
 done
 
 # Generate Log Path
-LOG=${LOG_DIR}/build-uboot.log
+LOG=${LOG_DIR}/uboot.log
 INST=${BUILD_DIR}/uboot
 
 # Print U-BOOT Build Parameters
-disp "Install   :  ${INST}" 3
-disp "Log       :  ${LOG}" 3
-disp "Board     :  ${BOARD}" 3
+disp "Build Dir  :  ${INST}" 3
+disp "Log Dir    :  ${LOG}" 3
 
 if [[ ${DST_DIR} != "" ]]; then
     DST=${DST_DIR}/u-boot.elf
-    disp "Deploy    :  ${DST_DIR}" 3
+    disp "Deploy Dir :  ${DST_DIR}" 3
 fi
 
-# -----------------------------------------------------------------------------
+disp "Board      :   ${BOARD}" 3
+
+# ------------------------------------------------------------------------------
 #  Setup Xilinx Tools and Build Settings
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 source ${XSDK}/settings64.sh
 export CROSS_COMPILE=arm-linux-gnueabihf-
 export ARCH=arm
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+#  Start Log
+# ------------------------------------------------------------------------------
+echo "" > ${LOG}
+
+# ------------------------------------------------------------------------------
 #  Check Directory
 #    Git checkout if it doesn't exist.  Clean if it does.
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 if [ ! -d ${INST} ]; then
-    git clone https://github.com/mdelong20/u-boot-xlnx.git ${INST}
+    git clone https://github.com/mdelong20/u-boot-xlnx.git ${INST}   &>> ${LOG}
     cd ${INST}
-    git checkout  xilinx-v2018.2-ups
+    git checkout  xilinx-v2018.2-ups                                 &>> ${LOG}
 
 else
     cd ${INST}
@@ -101,9 +108,9 @@ fi
 
 # Select Build Type Based on Board
 if [[ ${BOARD} == "coraz7" ]]; then
-    make O=build zynq_coraz7_defconfig                                 > ${LOG}
+    make O=build zynq_coraz7_defconfig                               &>> ${LOG}
 elif [[ ${BOARD} == "artyz7" ]]; then
-    make O=build zynq_artyz7_defconfig                                 > ${LOG}
+    make O=build zynq_artyz7_defconfig                               &>> ${LOG}
 else
     echo "Incorrect board type .. ${BOARD}"
     exit 1

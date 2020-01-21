@@ -5,12 +5,12 @@ proc help {} {
     puts " Generate UPS SDK Xilinx Project"
     puts " Syntax:"
     puts "   $SCRIPT_NAME"
-    puts "   $SCRIPT_NAME -tclargs \[--build_dir <path>\]"
+    puts "   $SCRIPT_NAME -tclargs \[--sdk_dir <path>\]"
     puts "   $SCRIPT_NAME -tclargs \[--help\]\n"
     puts "Usage:"
     puts "Name                   Description"
     puts "-------------------------------------------------------------------------"
-    puts "\[--build_dir <path>\]     Set the build root path.\n"
+    puts "\[--sdk_dir <path>\]       Set the build root path.\n"
     puts "\[--help\]                 Print help information for this script.\n"
     puts "-------------------------------------------------------------------------\n"
     exit 0
@@ -22,7 +22,7 @@ if { $::argc > 0 } {
         set option [string trim [lindex $::argv $i]]
         puts $option
         switch -regexp -- $option {
-            "--build_dir" { incr i; set BUILD_DIR [lindex $::argv $i] }
+            "--sdk_dir" { incr i; set BUILD_DIR [lindex $::argv $i] }
             "--help" { help }
             default {
                 if { [regexp {^-} $option] } {
