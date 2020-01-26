@@ -1,1 +1,3 @@
 build
+scripts/ups_zynq_cora
+deploy

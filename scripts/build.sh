@@ -16,7 +16,8 @@ BD=`realpath ../build`
 SD=`realpath ../build/sdk`
 LD=`realpath ../build/log`
 DD=`realpath ../deploy`
-CD=`realpath ../yocto`
+CDY=`realpath ../yocto`
+CDB=`realpath ../buildroot`
 
 # ------------------------------------------------------------------------------
 #  Setup Build Directories
@@ -57,20 +58,21 @@ fi
 # ------------------------------------------------------------------------------
 #  Build U-Boot
 # ------------------------------------------------------------------------------
-# ./build-uboot.sh --build_dir=${BD} --log_dir=${LD} --deploy_dir=${DD} --board="coraz7"
+./build-uboot.sh --build_dir=${BD} --log_dir=${LD} --deploy_dir=${DD} --board="coraz7"
 
 # ------------------------------------------------------------------------------
 #  Build FPGA Hardware
 # ------------------------------------------------------------------------------
-# ./build-fpga-hw.sh --build_dir=${BD} --log_dir=${LD} --deploy_dir=${DD} --sdk_dir=${SD} --board="coraz7"
+./build-fpga-hw.sh --build_dir=${BD} --log_dir=${LD} --deploy_dir=${DD} --sdk_dir=${SD} --board="coraz7"
 
 # ------------------------------------------------------------------------------
 #  Build FPGA SDK
 # ------------------------------------------------------------------------------
-# ./build-fpga-sdk.sh --sdk_dir=${SD} --log_dir=${LD} --deploy_dir=${DD}
+./build-fpga-sdk.sh --sdk_dir=${SD} --log_dir=${LD} --deploy_dir=${DD}
 
 # ------------------------------------------------------------------------------
 #  Build FPGA SDK
 # ------------------------------------------------------------------------------
 # ./build-yocto.sh --build_dir=${BD} --conf_dir=${CD}
-./build-br.sh --build_dir=${BD} --conf_dir=${CD}
+./build-br.sh --build_dir=${BD} --conf_dir=${CDB} --log_dir=${LD}
+

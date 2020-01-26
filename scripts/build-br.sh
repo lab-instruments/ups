@@ -82,9 +82,11 @@ LOG=${LOG_DIR}/buildroot.log
 BD=${BUILD_DIR}/buildroot
 
 # Print U-BOOT Build Parameters
-disp "Log Dir    :  ${LOG_DIR}" 3
-disp "Build Dir  :  ${SDK_DIR}" 3
-disp "Deploy Dir :  ${SDK_DIR}" 3
+disp "Buildroot Stats" 3
+disp "Log Dir    :  ${LOG_DIR}" 4
+disp "Build Dir  :  ${BD}" 4
+disp "Config Dir :  ${CD}" 4
+disp "Deploy Dir :  ${DD}" 4
 
 # ------------------------------------------------------------------------------
 #  Clean Stale Root File System
@@ -104,12 +106,13 @@ cd ${BD}
 #  Setup Build
 # ------------------------------------------------------------------------------
 # Copy Configuration Files
+cp ${CD}/zynq_cora_defconfig ${BD}/configs/
 
 # Setup Build Environment
-make zynq_zed_defconfig
+make zynq_cora_defconfig                                              &> ${LOG}
 
 # Build
-make
+make                                                                 &>> ${LOG}
 
 
 

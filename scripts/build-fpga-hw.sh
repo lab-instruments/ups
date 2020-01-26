@@ -29,7 +29,7 @@ disp "FPGA HW Build Script" 2
 BUILD_DIR=`pwd`
 LOG_DIR=`pwd`
 SDK_DIR=`pwd`
-DST_DIR=""
+DD=""
 BOARD="coraz7"
 
 # Parse Command Line Inputs
@@ -83,7 +83,7 @@ BIT=${INST}/ups/ups.runs/impl_1/ups.bit
 disp "Build Dir  :  ${INST}" 3
 disp "Log Dir    :  ${LOG_DIR}" 3
 disp "SDK Dir    :  ${SDK_DIR}" 3
-disp "Deploy Dir :  ${SDK_DIR}" 3
+disp "Deploy Dir :  ${DD}" 3
 disp "Board      :  ${BOARD}" 3
 
 # ------------------------------------------------------------------------------
@@ -115,11 +115,11 @@ ${VIV_EXE} -mode batch                                                        \
 if [ -f ${BIT} ]; then
 
     # Copy File if Requested
-    if [[ ${DST_DIR} != "" ]]; then
-        if [ ! -d ${DST_DIR} ]; then
-            mkdir ${DST_DIR}
+    if [[ ${DD} != "" ]]; then
+        if [ ! -d ${DD} ]; then
+            mkdir ${DD}
         fi
-        cp ${BIT} ${DST_DIR}
+        cp ${BIT} ${DD}
     fi
 
     # Report Success

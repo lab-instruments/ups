@@ -46,7 +46,7 @@ for i in "$@" ; do
             ;;
 
         --deploy_dir=*)
-            DD="${i#*=}"
+            DST_DIR="${i#*=}"
             shift
             ;;
 
@@ -65,7 +65,7 @@ FSBL=${SDK_DIR}/fsbl/Debug/fsbl.elf
 # Print U-BOOT Build Parameters
 disp "Log Dir    :  ${LOG_DIR}" 3
 disp "SDK Dir    :  ${SDK_DIR}" 3
-disp "Deploy Dir :  ${SDK_DIR}" 3
+disp "Deploy Dir :  ${DST_DIR}" 3
 
 # ------------------------------------------------------------------------------
 #  Script Xilinx Tools
@@ -75,7 +75,9 @@ source ${XVIV}/settings64.sh
 # ------------------------------------------------------------------------------
 #  Clear Stale FSBL
 # ------------------------------------------------------------------------------
-rm ${FSBL}
+if [ -d ${FSBL} ]; then
+    rm ${FSBL}
+fi
 
 # ------------------------------------------------------------------------------
 #  Generate SDK/BSP/FSBL

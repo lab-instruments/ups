@@ -13,7 +13,7 @@ function disp {
             printf "     - $1\n"
             ;;
         4)
-            printf "       + $1"
+            printf "       + $1\n"
             ;;
         *)
             echo "Incorrect display level .. exit"

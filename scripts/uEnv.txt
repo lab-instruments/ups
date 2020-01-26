@@ -1,7 +1,7 @@
 machine_name=zynq-artyz7
 data_kernel=uImage
 addr_kernel=0x4000000
-data_dt=zynq-coraz7.dtb
+data_dt=devicetree.dtb
 addr_dt=0x3600000
 data_rfs=rootfs
 addr_rfs=0x2000000

@@ -77,7 +77,7 @@ if [[ ${DST_DIR} != "" ]]; then
     disp "Deploy Dir :  ${DST_DIR}" 3
 fi
 
-disp "Board      :   ${BOARD}" 3
+disp "Board      :  ${BOARD}" 3
 
 # ------------------------------------------------------------------------------
 #  Setup Xilinx Tools and Build Settings
