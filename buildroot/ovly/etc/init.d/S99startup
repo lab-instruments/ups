@@ -1,0 +1,11 @@
+# Change Root Password
+echo -e "root\nroot" | passwd root
+
+# Startup ETH0
+ifconfig eth0 up
+
+# Start DHCP Service
+dhcpcd
+
+# Start Python Hardware Server
+python /usr/local/bin/Server.py &

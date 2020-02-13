@@ -28,10 +28,16 @@ module ups_ctrl(
     input          adc_dv,
 
     // -------------------------------------------------------------------------
-    //  DAC Interface
+    //  DAC0 Interface
     // -------------------------------------------------------------------------
-    output [15:0]  dac,
-    output         dac_dv
+    output [15:0]  dac0,
+    output         dac0_dv,
+
+    // -------------------------------------------------------------------------
+    //  DAC1 Interface
+    // -------------------------------------------------------------------------
+    output [15:0]  dac1,
+    output         dac1_dv
 
 );
 
@@ -58,8 +64,10 @@ module ups_ctrl(
     // -------------------------------------------------------------------------
     //  Assigns
     // -------------------------------------------------------------------------
-    assign dac0                        = dac0_l;                                // Assign Data to DAC
-    assign dac0_dv                     = dac0_dv_l;                             // Assign Data Valid to DAC
+    assign dac0                        = dac0_l;                                // Assign Data to DAC0
+    assign dac0_dv                     = dac0_dv_l;                             // Assign Data Valid to DAC0
+    assign dac1                        = dac0_l;                                // Assign Data to DAC1
+    assign dac1_dv                     = dac0_dv_l;                             // Assign Data Valid to DAC1
 
     // -------------------------------------------------------------------------
     //  Variables
@@ -70,9 +78,13 @@ module ups_ctrl(
     // State Machine Reset
     logic          sm_rst_n;
 
-    // DAC Internal Registers
+    // DAC0 Internal Registers
     logic [15:0]   dac0_l;
     logic          dac0_dv_l;
+
+    // DAC1 Internal Registers
+    logic [15:0]   dac1_l;
+    logic          dac1_dv_l;
 
     // Conversion Constant
     logic [31:0]   conv_c = 32'hCCD9; // 12.803 * 1024
@@ -153,8 +165,10 @@ module ups_ctrl(
     always @(posedge clk) begin : AD_READ_STATE_MACHINE
         if(sm_rst_n == 1'b0) begin
             state                      <= CTRL_IDLE;                            // Reset State Controller
-            dac0_dv_l                  <= 'b0;                                  // Reset DAC DV
-            dac0_l                     <= 'b0;                                  // Reset DAC Register
+            dac0_dv_l                  <= 'b0;                                  // Reset DAC0 DV
+            dac0_l                     <= 'b0;                                  // Reset DAC0 Register
+            dac1_dv_l                  <= 'b0;                                  // Reset DAC1 DV
+            dac1_l                     <= 'b0;                                  // Reset DAC1 Register
 
         end else begin
 

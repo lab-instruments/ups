@@ -65,21 +65,11 @@ for i in "$@" ; do
     esac
 done
 
-# Check Configuration Files
-#if [ ! -f "${CD}/local.conf" ]; then
-#    echo " LOCAL.CONF not in configuration directory .. Exit"
-#    exit 1
-#fi
-#
-#if [ ! -f "${CD}/bblayers.conf" ]; then
-#    echo " BBLAYERS.CONF not in configuration directory .. Exit"
-#    exit 1
-#fi
-
 # Generate Paths
 LOG=${LOG_DIR}/buildroot.log
-# RFS=${BUILD_DIR}/fsbl/Debug/fsbl.elf
 BD=${BUILD_DIR}/buildroot
+RFS=${BD}/output/images/rootfs.cpio.uboot
+UIM=${BD}/output/images/uImage
 
 # Print U-BOOT Build Parameters
 disp "Buildroot Stats" 3
@@ -89,18 +79,29 @@ disp "Config Dir :  ${CD}" 4
 disp "Deploy Dir :  ${DD}" 4
 
 # ------------------------------------------------------------------------------
-#  Clean Stale Root File System
+#  Clean Build Artifacts
 # ------------------------------------------------------------------------------
-# rm ?
+if [ -f ${RFS} ]; then
+    rm ${RFS}
+fi
+
+if [ -f ${UIM} ]; then
+    rm ${UIM}
+fi
+
+echo "" > ${LOG}
 
 # ------------------------------------------------------------------------------
 #  Get Yocto Poky Source and Checkout Branch
 # ------------------------------------------------------------------------------
 # Check if Repo Exists Already
 if [ ! -d ${BD} ]; then
-    git clone https://github.com/buildroot/buildroot.git ${BD}
+    git clone https://github.com/buildroot/buildroot.git ${BD}       &>> ${LOG}
+    cd ${BD}
+else
+    cd ${BD}
+    make clean                                                       &>> ${LOG}
 fi
-cd ${BD}
 
 # ------------------------------------------------------------------------------
 #  Setup Build
@@ -109,35 +110,46 @@ cd ${BD}
 cp ${CD}/zynq_cora_defconfig ${BD}/configs/
 
 # Setup Build Environment
-make zynq_cora_defconfig                                              &> ${LOG}
+make zynq_cora_defconfig                                             &>> ${LOG}
 
 # Build
-make                                                                 &>> ${LOG}
-
-
-
-
+make BR2_EXTERNAL_OVLY=${CD}                                         &>> ${LOG}
 
 # ------------------------------------------------------------------------------
 #  Check if Build Passed
 # ------------------------------------------------------------------------------
-#if [ -f ${FSBL} ]; then
-#
-#    # Copy File if Requested
-#    if [[ ${DST_DIR} != "" ]]; then
-#        if [ ! -d ${DST_DIR} ]; then
-#            mkdir ${DST_DIR}
-#        fi
-#        cp ${FSBL} ${DST_DIR}
-#    fi
-#
-#    # Report Success
-#    disp "FPGA SDK Build Success" 3
-#    exit 0
-#
-#else
-#    disp "FPGA SDK Build Failed" 3
-#    exit 1
-#
-#fi
-#
+BUILD_FAIL=0
+if [ -f ${RFS} ]; then
+    # Copy File if Requested
+    if [[ ${DD} != "" ]]; then
+        if [ ! -d ${DD} ]; then
+            mkdir ${DD}
+        fi
+        cp ${RFS} ${DD}
+    fi
+else
+    BUILD_FAIL=1
+fi
+
+if [ -f ${UIM} ]; then
+    # Copy File if Requested
+    if [[ ${DD} != "" ]]; then
+        if [ ! -d ${DD} ]; then
+            mkdir ${DD}
+        fi
+        cp ${UIM} ${DD}
+    fi
+else
+    BUILD_FAIL=1
+fi
+
+if [ ${BUILD_FAIL} -eq 0 ]; then
+    # Report Success
+    disp "FPGA SDK Build Success" 3
+    exit 0
+
+else
+    disp "FPGA SDK Build Failed" 3
+    exit 1
+
+fi

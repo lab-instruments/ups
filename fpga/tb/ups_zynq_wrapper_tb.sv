@@ -231,19 +231,19 @@ module ups_zynq_wrapper(
     // -------------------------------------------------------------------------
     initial begin : AXI4L_TEST
         #3000;
-        axi4l_write(32'h0, 32'h10);
+        axi4l_write(32'h0, 32'h2);
 
         #150;
         axi4l_read(32'h0);
 
         #150;
-        axi4l_write(32'h1, 32'h11);
+        axi4l_write(32'h4, 32'h11);
 
         #200;
-        axi4l_read(32'h1);
+        axi4l_read(32'h4);
 
         #150;
-        axi4l_write(32'h2, 32'hC38D);
+        axi4l_write(32'h8, 32'hC38D);
 
     end
 

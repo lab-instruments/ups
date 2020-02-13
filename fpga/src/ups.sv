@@ -62,11 +62,6 @@ module ups(
 );
 
     // -------------------------------------------------------------------------
-    //  Assigns
-    // -------------------------------------------------------------------------
-    assign valve                       = data_l[2][0];
-
-    // -------------------------------------------------------------------------
     //  Variables
     // -------------------------------------------------------------------------
     // Clock and Reset
@@ -111,6 +106,29 @@ module ups(
     // DAC Data
     logic              dac_dv_l;
     logic [15:0]       dac_data_l;
+
+    // DAC SPI Interface Internal Signals
+    logic              dac_sclk_l;
+    logic              dac_dout_l;
+    logic              dac_cs_n_l;
+
+    // ADC SPI Interface Internal sSignals
+    logic              adc_sclk_l;
+    logic              adc_din_l;
+    logic              adc_cs_n_l;
+
+    // -------------------------------------------------------------------------
+    //  Assigns
+    // -------------------------------------------------------------------------
+    assign valve                       = data_l[2][0];                          // Route Valve Signal from Logic to Pin
+
+    assign adc_din_l                   = adc_din;                               // Assign ADC DIN Pin to Internal Sig
+    assign adc_sclk                    = adc_sclk_l;                            // Assign Internal ADC SCLK to Pin
+    assign adc_cs_n                    = adc_cs_n_l;                            // Assign Internal ADC CS to Pin
+
+    assign dac_sclk                    = dac_sclk_l;                            // Assign Internal DAC SCLK to Pin
+    assign dac_dout                    = dac_dout_l;                            // Assign Internal DAC DIN to Pin
+    assign dac_cs_n                    = dac_cs_n_l;                            // Assign Internal DAC CS to Pin
 
     // -------------------------------------------------------------------------
     //  Analog to Digital Converter
@@ -164,9 +182,9 @@ module ups(
         // ---------------------------------------------------------------------
         //  ADC SPI Interface
         // ---------------------------------------------------------------------
-        .sclk                          (adc_sclk),
-        .din                           (adc_din),
-        .cs_n                          (adc_cs_n)
+        .sclk                          (adc_sclk_l),
+        .din                           (adc_din_l),
+        .cs_n                          (adc_cs_n_l)
 
     );
 
@@ -176,7 +194,33 @@ module ups(
     adc_ila adc_ila0(
         .clk                           (fclk_l),
         .probe0                        (adc_dv_l),
-        .probe1                        (adc_data_l)
+        .probe1                        (adc_data_l),
+        .probe2                        (adc_sclk_l),
+        .probe3                        (adc_din_l),
+        .probe4                        (adc_cs_n_l)
+    );
+
+    // -------------------------------------------------------------------------
+    //  DAC ILA
+    // -------------------------------------------------------------------------
+    dac_ila dac_ila0(
+        .clk                           (fclk_l),
+        .probe0                        (dac_dv_l),
+        .probe1                        (dac_data_l),
+        .probe2                        (dac_sclk_l),
+        .probe3                        (dac_dout_l),
+        .probe4                        (dac_cs_n_l)
+    );
+
+    // -------------------------------------------------------------------------
+    //  Data ILA
+    // -------------------------------------------------------------------------
+    data_ila data_ila0(
+        .clk                           (fclk_l),
+        .probe0                        (dv_l[2:0]),
+        .probe1                        (data_l[0]),
+        .probe2                        (data_l[1]),
+        .probe3                        (data_l[2])
     );
 
     // -------------------------------------------------------------------------
@@ -198,9 +242,9 @@ module ups(
         // ---------------------------------------------------------------------
         //  DAC SPI Interface
         // ---------------------------------------------------------------------
-        .sclk                          (dac_sclk),
-        .dout                          (dac_dout),
-        .cs_n                          (dac_cs_n)
+        .sclk                          (dac_sclk_l),
+        .dout                          (dac_dout_l),
+        .cs_n                          (dac_cs_n_l)
 
     );
 

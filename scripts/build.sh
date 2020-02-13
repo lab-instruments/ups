@@ -74,5 +74,5 @@ fi
 #  Build FPGA SDK
 # ------------------------------------------------------------------------------
 # ./build-yocto.sh --build_dir=${BD} --conf_dir=${CD}
-./build-br.sh --build_dir=${BD} --conf_dir=${CDB} --log_dir=${LD}
+./build-br.sh --build_dir=${BD} --conf_dir=${CDB} --log_dir=${LD} --deploy_dir=${DD}
 
