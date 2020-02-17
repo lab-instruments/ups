@@ -12,16 +12,23 @@ module ups_da(
     input          rst_n,
 
     // -------------------------------------------------------------------------
-    //  Converter Data Interface
+    //  Converter Data Interface0
     // -------------------------------------------------------------------------
-    input          dv,
-    input   [15:0] data,
+    input          dv0,
+    input   [11:0] data0,
+
+    // -------------------------------------------------------------------------
+    //  Converter Data Interface1
+    // -------------------------------------------------------------------------
+    input          dv1,
+    input   [11:0] data1,
 
     // -------------------------------------------------------------------------
     //  DAC SPI Interface
     // -------------------------------------------------------------------------
     output         sclk,
-    output         dout,
+    output         dout0,
+    output         dout1,
     output         cs_n,
     output         ldac_n
 
@@ -48,11 +55,13 @@ module ups_da(
     logic         sclk_reg_l;
     logic         sclk_out_l;
     logic         cs_n_l;
-    logic         dout_l;
+    logic         dout0_l;
+    logic         dout1_l;
     logic         ldac_n_l;
 
     // Internal Register
-    logic [15:0]  data_l;
+    logic [15:0]  data0_l;
+    logic [15:0]  data1_l;
     logic [ 4:0]  dcnt_l;
 
     // -------------------------------------------------------------------------
@@ -64,7 +73,8 @@ module ups_da(
     // Assign Pins
     assign sclk                        = sclk_out_l;
     assign cs_n                        = cs_n_l;
-    assign dout                        = dout_l;
+    assign dout0                       = dout0_l;
+    assign dout1                       = dout1_l;
     assign ldac_n                      = ldac_n_l;
 
     // -------------------------------------------------------------------------
@@ -94,8 +104,10 @@ module ups_da(
             dcnt_l                     <= 'b0;
             sclk_n_reg_l               <= 1'b0;
             sclk_reg_l                 <= 1'b0;
-            data_l                     <= 'b0;
-            dout_l                     <= 1'b0;
+            data0_l                    <= 'b0;
+            data1_l                    <= 'b0;
+            dout0_l                    <= 1'b0;
+            dout1_l                    <= 1'b0;
             sclk_out_l                 <= 1'b1;
             cs_n_l                     <= 1'b1;
             ldac_n_l                   <= 1'b1;
@@ -123,11 +135,16 @@ module ups_da(
                 //    and move onto send the data.
                 // -------------------------------------------------------------
                 DA_INIT : begin
-                    if(dv == 1'b1) begin
-                        data_l         <= data;                                 // Register Input Data
+                    if((dv0 == 1'b1) || (dv1 == 1'b1)) begin
                         state          <= DA_CS_START;                          // Next State :: DA_CS_START
                         dcnt_l         <= 5'h10;                                // Reset Counter
 
+                        // Load Data
+                        if(dv0 == 1'b1) begin
+                            data0_l[11:0]   <= data0;                           // Register Input Data0
+                        end else begin // dv1 == 1'b1
+                            data1_l[11:0]   <= data1;                           // Register Input Data1
+                        end
                     end
                 end
 
@@ -140,7 +157,8 @@ module ups_da(
                     if((sclk_n_l == 1'b1) && (sclk_n_reg_l == 1'b0)) begin      // Look for Falling Edge
                         cs_n_l         <= 1'b0;                                 // Assert CS
                         state          <= DA_SND;                               // Next State :: DA_SND
-                        dout_l         <= data[dcnt_l - 1'b1];                  // Register Bit
+                        dout0_l        <= data0[dcnt_l - 1'b1];                 // Register Data0 Bit to Pin
+                        dout1_l        <= data1[dcnt_l - 1'b1];                 // Register Data1 Bit to Pin
                         dcnt_l         <= dcnt_l - 1'b1;                        // Increment Counter
 
                     end
@@ -157,7 +175,8 @@ module ups_da(
 
                     // Send Bit to DA
                     if((sclk_n_l == 1'b1) && (sclk_n_reg_l == 1'b0)) begin      // Look for Falling Edge
-                        dout_l         <= data[dcnt_l - 1'b1];                  // Register Bit
+                        dout0_l        <= data0[dcnt_l - 1'b1];                 // Register Data0 Bit to Pin
+                        dout1_l        <= data1[dcnt_l - 1'b1];                 // Register Data1 Bit to Pin
                         dcnt_l         <= dcnt_l - 1'b1;                        // Increment Counter
 
                     end
