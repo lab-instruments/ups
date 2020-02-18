@@ -36,14 +36,19 @@ class Hal:
         self.mmap_ctrl.seek(0)
         self.mmap_ctrl.write(struct.pack('I', val))
 
-    def dac_test(self, val):
+    def dac0_test(self, val):
         # Set Mode
         self.mmap_ctrl.seek(4)
         self.mmap_ctrl.write(struct.pack('I', val))
 
-    def valve(self, val):
+    def dac1_test(self, val):
         # Set Mode
         self.mmap_ctrl.seek(8)
+        self.mmap_ctrl.write(struct.pack('I', val))
+
+    def valve(self, val):
+        # Set Mode
+        self.mmap_ctrl.seek(12)
         self.mmap_ctrl.write(struct.pack('I', val))
 
 

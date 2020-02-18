@@ -60,8 +60,8 @@ module ups_da(
     logic         ldac_n_l;
 
     // Internal Register
-    logic [15:0]  data0_l;
-    logic [15:0]  data1_l;
+    logic [11:0]  data0_l;
+    logic [11:0]  data1_l;
     logic [ 4:0]  dcnt_l;
 
     // -------------------------------------------------------------------------
@@ -140,7 +140,10 @@ module ups_da(
                         dcnt_l         <= 5'h10;                                // Reset Counter
 
                         // Load Data
-                        if(dv0 == 1'b1) begin
+                        if((dv0 == 1'b1) && (dv1 == 1'b1)) begin
+                            data0_l[11:0]   <= data0;                           // Register Input Data0
+                            data1_l[11:0]   <= data1;                           // Register Input Data1
+                        end else if(dv0 == 1'b1) begin
                             data0_l[11:0]   <= data0;                           // Register Input Data0
                         end else begin // dv1 == 1'b1
                             data1_l[11:0]   <= data1;                           // Register Input Data1
@@ -181,7 +184,9 @@ module ups_da(
 
                     end
 
-                    if((sclk_l == 1'b1) && (sclk_reg_l == 1'b0)) begin          // Look for Rising Edge
+                    if((sclk_l == 1'b1)
+                    
+                     && (sclk_reg_l == 1'b0)) begin          // Look for Rising Edge
                         if(dcnt_l == 5'h0) begin
                             state      <= DA_CS_STOP;                           // Next State :: DA_CS_STOP
                             dcnt_l     <= 5'h0;                                 // Reset Counter

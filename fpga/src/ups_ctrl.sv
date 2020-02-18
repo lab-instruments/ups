@@ -12,14 +12,22 @@ module ups_ctrl(
     input          rst_n,
 
     // -------------------------------------------------------------------------
-    //  Parameter Interface
-    //    MODE -- Controller Mode
+    //  Mode Interface
     // -------------------------------------------------------------------------
     input  [31:0]  mode,
     input          mode_update,
 
-    input  [15:0]  dac_test_data,
-    input          dac_test_dv,
+    // -------------------------------------------------------------------------
+    //  DAC0 Interface
+    // -------------------------------------------------------------------------
+    input  [11:0]  dac0_test_data,
+    input          dac0_test_dv,
+
+    // -------------------------------------------------------------------------
+    //  DAC1 Interface
+    // -------------------------------------------------------------------------
+    input  [11:0]  dac1_test_data,
+    input          dac1_test_dv,
 
     // -------------------------------------------------------------------------
     //  ADC Interface
@@ -30,13 +38,13 @@ module ups_ctrl(
     // -------------------------------------------------------------------------
     //  DAC0 Interface
     // -------------------------------------------------------------------------
-    output [15:0]  dac0,
+    output [11:0]  dac0,
     output         dac0_dv,
 
     // -------------------------------------------------------------------------
     //  DAC1 Interface
     // -------------------------------------------------------------------------
-    output [15:0]  dac1,
+    output [11:0]  dac1,
     output         dac1_dv
 
 );
@@ -79,22 +87,12 @@ module ups_ctrl(
     logic          sm_rst_n;
 
     // DAC0 Internal Registers
-    logic [15:0]   dac0_l;
+    logic [11:0]   dac0_l;
     logic          dac0_dv_l;
 
     // DAC1 Internal Registers
-    logic [15:0]   dac1_l;
+    logic [11:0]   dac1_l;
     logic          dac1_dv_l;
-
-    // Conversion Constant
-    logic [31:0]   conv_c = 32'hCCD9; // 12.803 * 1024
-
-    // Conversion Registers
-    logic [ 2:0]   adc_dv_sr_l;
-    logic [15:0]   adc_conv_data_l;
-    logic          adc_conv_dv_l;
-    logic [31:0]   adc_conv_int_l;
-    logic [11:0]   adc_reg_l;
 
     // -------------------------------------------------------------------------
     //  Look for Mode Change
@@ -116,53 +114,9 @@ module ups_ctrl(
     end
 
     // -------------------------------------------------------------------------
-    //  Convert from 12-bit 0-3.3V Full Scale to 16-bit 1V/PSI
-    //    1. Multiply ADC Value by 0x3333 {12.8 * 1024}.
-    //    2. Bit Slice to Divide by 1024.
-    //    3. Register and Indicate Value
-    // -------------------------------------------------------------------------
-    always @(posedge clk) begin : ADC_DATA_CONVERTER
-        // Sync Reset
-        if(rst_n == 1'b0) begin
-            adc_dv_sr_l                <= 'b0;                                  // Reset Shift Register
-            adc_conv_data_l            <= 'b0;                                  // Reset Converted Data Reg
-            adc_conv_dv_l              <= 'b0;                                  // Reset Converted Data Valid
-            adc_conv_int_l             <= 'b0;                                  // Reset Intermediate Data
-            adc_reg_l                  <= 'b0;                                  // Reset ADC Data Register
-
-        end else begin
-
-            // -----------------------------------------------------------------
-            //  Shift Register
-            // -----------------------------------------------------------------
-            adc_dv_sr_l[2:1]           <= adc_dv_sr_l[1:0];                     // Shift!
-            adc_dv_sr_l[0]             <= adc_dv;                               // Register ADC Data Valid
-            adc_reg_l                  <= adc;                                  // Register ADC Data
-            adc_conv_dv_l              <= 1'b0;                                 // Normally Not Valid
-
-            // -----------------------------------------------------------------
-            //  Generate Intermediate Data
-            // -----------------------------------------------------------------
-            if(adc_dv_sr_l[0] == 1'b1) begin
-                adc_conv_int_l         <= adc_reg_l * conv_c;                   // Convert Data
-
-            end
-
-            // -----------------------------------------------------------------
-            //  Generate Converted Data
-            // -----------------------------------------------------------------
-            if(adc_dv_sr_l[1] == 1'b1) begin
-                adc_conv_data_l        <= adc_conv_int_l[27:12];                // Slice Data
-                adc_conv_dv_l          <= 1'b1;                                 // Indicate Valid
-
-            end
-        end
-    end
-
-    // -------------------------------------------------------------------------
     //  Controller State Machine
     // -------------------------------------------------------------------------
-    always @(posedge clk) begin : AD_READ_STATE_MACHINE
+    always @(posedge clk) begin : CONTROLLER_STATE_MACHINE
         if(sm_rst_n == 1'b0) begin
             state                      <= CTRL_IDLE;                            // Reset State Controller
             dac0_dv_l                  <= 'b0;                                  // Reset DAC0 DV
@@ -176,6 +130,7 @@ module ups_ctrl(
             //  Defaults
             // -----------------------------------------------------------------
             dac0_dv_l                  <= 1'b0;                                 // Normally not Valid
+            dac1_dv_l                  <= 1'b0;                                 // Normally not Valid
 
             // -----------------------------------------------------------------
             //  Read State Machine
@@ -194,9 +149,6 @@ module ups_ctrl(
                         state          <= CTRL_TEST_DAC;                        // Next State :: CTRL_TEST_DAC
 
                     end else if(mode == 32'h3) begin
-                        state          <= CTRL_TEST_CONV;                       // Next State :: CTRL_TEST_CONV
-
-                    end else if(mode == 32'h3) begin
                         state          <= CTRL_RUN_STAGE;                       // Next State :: CTRL_RUN_STATE
 
                     end
@@ -208,8 +160,13 @@ module ups_ctrl(
                 // -------------------------------------------------------------
                 CTRL_TEST_LB : begin
                     if(adc_dv == 1'b1) begin
+                        // Assign DAC0 Data
                         dac0_dv_l      <= 1'b1;
-                        dac0_l         <= { adc, 4'h0 };
+                        dac0_l         <= adc;
+
+                        // Assign DAC1 Data
+                        dac1_dv_l      <= 1'b1;
+                        dac1_l         <= adc;
 
                     end
                 end
@@ -219,21 +176,17 @@ module ups_ctrl(
                 //    In this state we pass a user assigned value to the dac.
                 // -------------------------------------------------------------
                 CTRL_TEST_DAC : begin
-                    if(dac_test_dv == 1'b1) begin
+                    // Send DAC0 Test Data to Converter
+                    if(dac0_test_dv == 1'b1) begin
                         dac0_dv_l      <= 1'b1;
-                        dac0_l         <= dac_test_data;
+                        dac0_l         <= dac0_test_data;
 
                     end
-                end
 
-                // -------------------------------------------------------------
-                //  CTRL_TEST_CONV State
-                //    In this state we pass the converted data to the dac.
-                // -------------------------------------------------------------
-                CTRL_TEST_CONV : begin
-                    if(adc_conv_dv_l == 1'b1) begin
-                        dac0_dv_l      <= 1'b1;
-                        dac0_l         <= adc_conv_data_l;
+                    // Send DAC1 Test Data to Converter
+                    if(dac1_test_dv == 1'b1) begin
+                        dac1_dv_l      <= 1'b1;
+                        dac1_l         <= dac1_test_data;
 
                     end
                 end
@@ -246,8 +199,6 @@ module ups_ctrl(
                 CTRL_RUN_STAGE : begin
                     
                 end
-
-
 
                 // -------------------------------------------------------------
                 //  Default State

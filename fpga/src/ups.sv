@@ -40,7 +40,8 @@ module ups(
     //  DAC SPI Interface
     // -------------------------------------------------------------------------
     output              dac_sclk,
-    output              dac_dout,
+    output              dac_dout0,
+    output              dac_dout1,
     output              dac_cs_n,
 
     // -------------------------------------------------------------------------
@@ -103,13 +104,18 @@ module ups(
     logic               adc_dv_l;
     logic [11:0]        adc_data_l;
 
-    // DAC Data
-    logic              dac_dv_l;
-    logic [15:0]       dac_data_l;
+    // DAC0 Data
+    logic              dac0_dv_l;
+    logic [11:0]       dac0_data_l;
+
+    // DAC0 Data
+    logic              dac1_dv_l;
+    logic [11:0]       dac1_data_l;
 
     // DAC SPI Interface Internal Signals
     logic              dac_sclk_l;
-    logic              dac_dout_l;
+    logic              dac_dout0_l;
+    logic              dac_dout1_l;
     logic              dac_cs_n_l;
 
     // ADC SPI Interface Internal sSignals
@@ -120,14 +126,15 @@ module ups(
     // -------------------------------------------------------------------------
     //  Assigns
     // -------------------------------------------------------------------------
-    assign valve                       = data_l[2][0];                          // Route Valve Signal from Logic to Pin
+    assign valve                       = data_l[3][0];                          // Route Valve Signal from Logic to Pin
 
     assign adc_din_l                   = adc_din;                               // Assign ADC DIN Pin to Internal Sig
     assign adc_sclk                    = adc_sclk_l;                            // Assign Internal ADC SCLK to Pin
     assign adc_cs_n                    = adc_cs_n_l;                            // Assign Internal ADC CS to Pin
 
     assign dac_sclk                    = dac_sclk_l;                            // Assign Internal DAC SCLK to Pin
-    assign dac_dout                    = dac_dout_l;                            // Assign Internal DAC DIN to Pin
+    assign dac_dout0                   = dac_dout0_l;                           // Assign Internal DAC0 DOUT to Pin
+    assign dac_dout1                   = dac_dout1_l;                           // Assign Internal DAC1 DOUT to Pin
     assign dac_cs_n                    = dac_cs_n_l;                            // Assign Internal DAC CS to Pin
 
     // -------------------------------------------------------------------------
@@ -141,13 +148,22 @@ module ups(
         .rst_n                         (rst_n_l),
 
         // ---------------------------------------------------------------------
-        //  Parameter Interface
+        //  Mode Interface
         // ---------------------------------------------------------------------
         .mode                          (data_l[0]),
         .mode_update                   (dv_l[0]),
 
-        .dac_test_data                 (data_l[1][15:0]),
-        .dac_test_dv                   (dv_l[1]),
+        // ---------------------------------------------------------------------
+        //  DAC0 Interface
+        // ---------------------------------------------------------------------
+        .dac0_test_data                (data_l[1][11:0]),
+        .dac0_test_dv                  (dv_l[1]),
+
+        // ---------------------------------------------------------------------
+        //  DAC1 Interface
+        // ---------------------------------------------------------------------
+        .dac1_test_data                (data_l[2][11:0]),
+        .dac1_test_dv                  (dv_l[2]),
 
         // ---------------------------------------------------------------------
         //  ADC Interface
@@ -156,10 +172,16 @@ module ups(
         .adc_dv                        (adc_dv_l),
 
         // ---------------------------------------------------------------------
-        //  DAC Interface
+        //  DAC0 Interface
         // ---------------------------------------------------------------------
-        .dac                           (dac_data_l),
-        .dac_dv                        (dac_dv_l)
+        .dac0                          (dac0_data_l),
+        .dac0_dv                       (dac0_dv_l),
+
+        // ---------------------------------------------------------------------
+        //  DAC1 Interface
+        // ---------------------------------------------------------------------
+        .dac1                          (dac1_data_l),
+        .dac1_dv                       (dac1_dv_l)
 
     );
 
@@ -205,11 +227,14 @@ module ups(
     // -------------------------------------------------------------------------
     dac_ila dac_ila0(
         .clk                           (fclk_l),
-        .probe0                        (dac_dv_l),
-        .probe1                        (dac_data_l),
-        .probe2                        (dac_sclk_l),
-        .probe3                        (dac_dout_l),
-        .probe4                        (dac_cs_n_l)
+        .probe0                        (dac0_dv_l),
+        .probe1                        (dac0_data_l),
+        .probe2                        (dac1_dv_l),
+        .probe3                        (dac1_data_l),
+        .probe4                        (dac_sclk_l),
+        .probe5                        (dac_dout0_l),
+        .probe6                        (dac_dout1_l),
+        .probe7                        (dac_cs_n_l)
     );
 
     // -------------------------------------------------------------------------
@@ -234,16 +259,23 @@ module ups(
         .rst_n                         (rst_n_l),
 
         // ---------------------------------------------------------------------
-        //  Converter Data Interface
+        //  Converter0 Data Interface
         // ---------------------------------------------------------------------
-        .dv                            (dac_dv_l),
-        .data                          (dac_data_l),
+        .dv0                           (dac0_dv_l),
+        .data0                         (dac0_data_l),
+
+        // ---------------------------------------------------------------------
+        //  Converter0 Data Interface
+        // ---------------------------------------------------------------------
+        .dv1                           (dac1_dv_l),
+        .data1                         (dac1_data_l),
 
         // ---------------------------------------------------------------------
         //  DAC SPI Interface
         // ---------------------------------------------------------------------
         .sclk                          (dac_sclk_l),
-        .dout                          (dac_dout_l),
+        .dout0                         (dac_dout0_l),
+        .dout1                         (dac_dout1_l),
         .cs_n                          (dac_cs_n_l)
 
     );

@@ -237,13 +237,19 @@ module ups_zynq_wrapper(
         axi4l_read(32'h0);
 
         #150;
-        axi4l_write(32'h4, 32'h11);
+        axi4l_write(32'h4, 32'h444);
 
         #200;
         axi4l_read(32'h4);
 
         #150;
-        axi4l_write(32'h8, 32'hC38D);
+        axi4l_write(32'h8, 32'h222);
+
+        #150;
+        axi4l_write(32'hC, 32'h1);
+
+        #150;
+        axi4l_write(32'hC, 32'h0);
 
     end
 
