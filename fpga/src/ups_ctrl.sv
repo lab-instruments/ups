@@ -74,8 +74,8 @@ module ups_ctrl(
     // -------------------------------------------------------------------------
     assign dac0                        = dac0_l;                                // Assign Data to DAC0
     assign dac0_dv                     = dac0_dv_l;                             // Assign Data Valid to DAC0
-    assign dac1                        = dac0_l;                                // Assign Data to DAC1
-    assign dac1_dv                     = dac0_dv_l;                             // Assign Data Valid to DAC1
+    assign dac1                        = dac1_l;                                // Assign Data to DAC1
+    assign dac1_dv                     = dac1_dv_l;                             // Assign Data Valid to DAC1
 
     // -------------------------------------------------------------------------
     //  Variables
@@ -94,6 +94,16 @@ module ups_ctrl(
     logic [11:0]   dac1_l;
     logic          dac1_dv_l;
 
+    // Conversion Constant
+    logic [31:0]   conv_c = 32'hCCD9; // 12.803 * 1024
+
+    // Conversion Registers
+    logic [ 2:0]   adc_dv_sr_l;
+    logic [15:0]   adc_conv_data_l;
+    logic          adc_conv_dv_l;
+    logic [31:0]   adc_conv_int_l;
+    logic [11:0]   adc_reg_l;
+
     // -------------------------------------------------------------------------
     //  Look for Mode Change
     // -------------------------------------------------------------------------
@@ -108,6 +118,50 @@ module ups_ctrl(
 
             end else begin
                 sm_rst_n               <= 1'b1;
+
+            end
+        end
+    end
+
+    // -------------------------------------------------------------------------
+    //  Convert from 12-bit 0-3.3V Full Scale to 16-bit 1V/PSI
+    //    1. Multiply ADC Value by 0x3333 {12.8 * 1024}.
+    //    2. Bit Slice to Divide by 1024.
+    //    3. Register and Indicate Value
+    // -------------------------------------------------------------------------
+    always @(posedge clk) begin : ADC_DATA_CONVERTER
+        // Sync Reset
+        if(rst_n == 1'b0) begin
+            adc_dv_sr_l                <= 'b0;                                  // Reset Shift Register
+            adc_conv_data_l            <= 'b0;                                  // Reset Converted Data Reg
+            adc_conv_dv_l              <= 'b0;                                  // Reset Converted Data Valid
+            adc_conv_int_l             <= 'b0;                                  // Reset Intermediate Data
+            adc_reg_l                  <= 'b0;                                  // Reset ADC Data Register
+
+        end else begin
+
+            // -----------------------------------------------------------------
+            //  Shift Register
+            // -----------------------------------------------------------------
+            adc_dv_sr_l[2:1]           <= adc_dv_sr_l[1:0];                     // Shift!
+            adc_dv_sr_l[0]             <= adc_dv;                               // Register ADC Data Valid
+            adc_reg_l                  <= adc;                                  // Register ADC Data
+            adc_conv_dv_l              <= 1'b0;                                 // Normally Not Valid
+
+            // -----------------------------------------------------------------
+            //  Generate Intermediate Data
+            // -----------------------------------------------------------------
+            if(adc_dv_sr_l[0] == 1'b1) begin
+                adc_conv_int_l         <= adc_reg_l * conv_c;                   // Convert Data
+
+            end
+
+            // -----------------------------------------------------------------
+            //  Generate Converted Data
+            // -----------------------------------------------------------------
+            if(adc_dv_sr_l[1] == 1'b1) begin
+                adc_conv_data_l        <= adc_conv_int_l[27:12];                // Slice Data
+                adc_conv_dv_l          <= 1'b1;                                 // Indicate Valid
 
             end
         end

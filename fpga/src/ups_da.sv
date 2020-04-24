@@ -60,8 +60,8 @@ module ups_da(
     logic         ldac_n_l;
 
     // Internal Register
-    logic [11:0]  data0_l;
-    logic [11:0]  data1_l;
+    logic [15:0]  data0_l;
+    logic [15:0]  data1_l;
     logic [ 4:0]  dcnt_l;
 
     // -------------------------------------------------------------------------
@@ -71,7 +71,7 @@ module ups_da(
     assign sclk_n_l                    = ~sclk_l;
 
     // Assign Pins
-    assign sclk                        = sclk_out_l;
+    assign sclk                        = sclk_l; // sclk_out_l;
     assign cs_n                        = cs_n_l;
     assign dout0                       = dout0_l;
     assign dout1                       = dout1_l;
@@ -143,10 +143,13 @@ module ups_da(
                         if((dv0 == 1'b1) && (dv1 == 1'b1)) begin
                             data0_l[11:0]   <= data0;                           // Register Input Data0
                             data1_l[11:0]   <= data1;                           // Register Input Data1
+
                         end else if(dv0 == 1'b1) begin
                             data0_l[11:0]   <= data0;                           // Register Input Data0
+
                         end else begin // dv1 == 1'b1
                             data1_l[11:0]   <= data1;                           // Register Input Data1
+
                         end
                     end
                 end
@@ -157,11 +160,12 @@ module ups_da(
                 // -------------------------------------------------------------
                 DA_CS_START : begin
                     // Send Bit to DA
-                    if((sclk_n_l == 1'b1) && (sclk_n_reg_l == 1'b0)) begin      // Look for Falling Edge
+                    // if((sclk_n_l == 1'b1) && (sclk_n_reg_l == 1'b0)) begin      // Look for Falling Edge
+                    if((sclk_l == 1'b1) && (sclk_reg_l == 1'b0)) begin          // Look for Rising Edge
                         cs_n_l         <= 1'b0;                                 // Assert CS
                         state          <= DA_SND;                               // Next State :: DA_SND
-                        dout0_l        <= data0[dcnt_l - 1'b1];                 // Register Data0 Bit to Pin
-                        dout1_l        <= data1[dcnt_l - 1'b1];                 // Register Data1 Bit to Pin
+                        dout0_l        <= data0_l[dcnt_l - 1'b1];               // Register Data0 Bit to Pin
+                        dout1_l        <= data1_l[dcnt_l - 1'b1];               // Register Data1 Bit to Pin
                         dcnt_l         <= dcnt_l - 1'b1;                        // Increment Counter
 
                     end
@@ -177,16 +181,15 @@ module ups_da(
                     cs_n_l             <= 1'b0;                                 // Assert CS
 
                     // Send Bit to DA
-                    if((sclk_n_l == 1'b1) && (sclk_n_reg_l == 1'b0)) begin      // Look for Falling Edge
-                        dout0_l        <= data0[dcnt_l - 1'b1];                 // Register Data0 Bit to Pin
-                        dout1_l        <= data1[dcnt_l - 1'b1];                 // Register Data1 Bit to Pin
+                    // if((sclk_n_l == 1'b1) && (sclk_n_reg_l == 1'b0)) begin      // Look for Falling Edge
+                    if((sclk_l == 1'b1) && (sclk_reg_l == 1'b0)) begin          // Look for Rising Edge
+                        dout0_l        <= data0_l[dcnt_l - 1'b1];               // Register Data0 Bit to Pin
+                        dout1_l        <= data1_l[dcnt_l - 1'b1];               // Register Data1 Bit to Pin
                         dcnt_l         <= dcnt_l - 1'b1;                        // Increment Counter
 
                     end
 
-                    if((sclk_l == 1'b1)
-                    
-                     && (sclk_reg_l == 1'b0)) begin          // Look for Rising Edge
+                    if((sclk_l == 1'b0) && (sclk_reg_l == 1'b1)) begin          // Look for Rising Edge
                         if(dcnt_l == 5'h0) begin
                             state      <= DA_CS_STOP;                           // Next State :: DA_CS_STOP
                             dcnt_l     <= 5'h0;                                 // Reset Counter
