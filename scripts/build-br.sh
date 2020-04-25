@@ -72,11 +72,10 @@ RFS=${BD}/output/images/rootfs.cpio.uboot
 UIM=${BD}/output/images/uImage
 
 # Print U-BOOT Build Parameters
-disp "Buildroot Stats" 3
-disp "Log Dir    :  ${LOG_DIR}" 4
-disp "Build Dir  :  ${BD}" 4
-disp "Config Dir :  ${CD}" 4
-disp "Deploy Dir :  ${DD}" 4
+disp "Log Dir    :  ${LOG_DIR}" 3
+disp "Build Dir  :  ${BD}" 3
+disp "Config Dir :  ${CD}" 3
+disp "Deploy Dir :  ${DD}" 3
 
 # ------------------------------------------------------------------------------
 #  Clean Build Artifacts
@@ -145,11 +144,11 @@ fi
 
 if [ ${BUILD_FAIL} -eq 0 ]; then
     # Report Success
-    disp "FPGA SDK Build Success" 3
+    disp "Buildroot Build Success" 3
     exit 0
 
 else
-    disp "FPGA SDK Build Failed" 3
+    disp "Buildroot Build Failed" 3
     exit 1
 
 fi
