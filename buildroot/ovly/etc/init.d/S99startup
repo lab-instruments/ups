@@ -8,4 +8,7 @@ ifconfig eth0 up
 dhcpcd
 
 # Start Python Hardware Server
-python /usr/local/bin/Server.py &
+python /usr/local/bin/RestServer.py &
+
+# Start the Python Discovery Server
+python /usr/local/bin/DiscoveryServer.py &
