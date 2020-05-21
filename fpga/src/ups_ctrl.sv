@@ -95,11 +95,11 @@ module ups_ctrl(
     logic          dac1_dv_l;
 
     // Conversion Constant
-    logic [31:0]   conv_c = 32'hCCD9; // 12.803 * 1024
+    logic [31:0]   conv_c = 32'h9B2; // (2/3.3 * 4096)
 
     // Conversion Registers
     logic [ 2:0]   adc_dv_sr_l;
-    logic [15:0]   adc_conv_data_l;
+    logic [11:0]   adc_conv_data_l;
     logic          adc_conv_dv_l;
     logic [31:0]   adc_conv_int_l;
     logic [11:0]   adc_reg_l;
@@ -160,7 +160,7 @@ module ups_ctrl(
             //  Generate Converted Data
             // -----------------------------------------------------------------
             if(adc_dv_sr_l[1] == 1'b1) begin
-                adc_conv_data_l        <= adc_conv_int_l[27:12];                // Slice Data
+                adc_conv_data_l        <= adc_conv_int_l[23:12];                // Slice Data
                 adc_conv_dv_l          <= 1'b1;                                 // Indicate Valid
 
             end
@@ -213,14 +213,14 @@ module ups_ctrl(
                 //    In this state we pass the ADC to the DAC shifted 4-bits.
                 // -------------------------------------------------------------
                 CTRL_TEST_LB : begin
-                    if(adc_dv == 1'b1) begin
+                    if(adc_conv_dv_l == 1'b1) begin
                         // Assign DAC0 Data
                         dac0_dv_l      <= 1'b1;
-                        dac0_l         <= adc;
+                        dac0_l         <= adc_conv_data_l;
 
                         // Assign DAC1 Data
                         dac1_dv_l      <= 1'b1;
-                        dac1_l         <= adc;
+                        dac1_l         <= adc_conv_data_l;
 
                     end
                 end
