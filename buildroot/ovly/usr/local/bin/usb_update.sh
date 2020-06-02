@@ -2,10 +2,12 @@
 
 # Create Log
 LOG=/tmp/usb_update.log
-echo "" > ${LOG}
+echo ""                                                    >   ${LOG}
+echo " -- USB UPDATE SCRIPT"                               >>  ${LOG}
 
 # Timestamp
-echo `date` >> ${LOG}
+echo `date`                                                >>  ${LOG}
+echo ""
 
 # Get Number
 SD_NUM=${1:3:1}
@@ -14,15 +16,16 @@ SD_NUM=${1:3:1}
 MNT=/mnt/usb${SD_NUM}
 
 # Logging
-echo "USB mass storage device detected : $1"         >> ${LOG}
-echo "SD number                        : ${SD_NUM}"  >> ${LOG}
-echo "Mount location                   : ${MNT}"     >> ${LOG}
+echo "USB mass storage device detected : $1"               >>  ${LOG}
+echo "SD number                        : ${SD_NUM}"        >>  ${LOG}
+echo "Mount location                   : ${MNT}"           >>  ${LOG}
+echo ""
 
 # ------------------------------------------------------------------------------
 #  Mount
 # ------------------------------------------------------------------------------
 echo
-echo "Attempt to mount /dev/$1 at ${MNT}"            >> ${LOG}
+echo "Attempt to mount /dev/$1 at ${MNT}"                  >>  ${LOG}
 
 # Check if USB Mount Directory Exists
 if [ ! -d ${MNT} ]; then
@@ -43,18 +46,19 @@ mount /dev/mmcblk0p1 /mnt/BOOT
 # ------------------------------------------------------------------------------
 #  Update
 # ------------------------------------------------------------------------------
-echo ''
-echo 'Check for update'
-
 # Check if Correct Structure Exists
 if [ -f ${MNT}/update ]; then
-    echo 'Update request file exists'
-    UC=`cat ${MNT}/update`
-    echo 'Update request contents --- ${UC}'
+    echo "Update request file exists"                      >>  ${LOG}
+    cp ${MNT}/files/* /mnt/BOOT/                           &>> ${LOG}
 
 else
-    echo "Update request file does not exist .. Exit" >> ${LOG}
+    echo "Update request file does not exist .. Exit"      >>  ${LOG}
     exit 0
 
 fi
 
+# Cleanup
+umount /mnt/BOOT
+umount ${MNT}
+rm -rf /mnt/BOOT
+rm -rf ${MNT}

@@ -77,7 +77,6 @@ echo "	${SD}/ups.bit"              >> ./boot.bif
 echo "	${SD}/u-boot.elf"           >> ./boot.bif
 echo "}"                            >> ./boot.bif
 
-
 # Build BOOT.BIN
 $BOOTG -image ./boot.bif -o i BOOT.bin -w                           &>> ${LOG}
 

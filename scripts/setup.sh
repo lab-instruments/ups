@@ -9,4 +9,4 @@ VIV_EXE=${XVIV}/bin/vivado
 SDK_EXE=${XSDK}/bin/xsdk
 
 VIV_BRD_FILES=${XVIV}/data/boards/board_files
-
+BOOTG=${XSDK}/bin/bootgen
