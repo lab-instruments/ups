@@ -5,8 +5,8 @@
 //  Description :  UPS AXI Interface
 // -----------------------------------------------------------------------------
 module ups_axi#(
-    parameter DW                       = 8,                                     // Data Block Size
-    parameter DI                       = 3                                      // Data Index Size log2(DW)
+    parameter DW                       = 16,                                    // Data Block Size
+    parameter DI                       = 4                                      // Data Index Size log2(DW)
 
 ) (
     // -------------------------------------------------------------------------
@@ -20,6 +20,11 @@ module ups_axi#(
     // -------------------------------------------------------------------------
     output [31:0]       data[DW-1:0],
     output [DW-1:0]     dv,
+
+    // -------------------------------------------------------------------------
+    //  Register Input
+    // -------------------------------------------------------------------------
+    input  [31:0]       status,
 
     // -------------------------------------------------------------------------
     //  AXI4-Lite Interface
@@ -158,7 +163,16 @@ module ups_axi#(
                 // -------------------------------------------------------------
                 AXI_RDEC : begin
                     // Decode Address
-                    ar_data_l          <= data_l[ar_addr_l[DI+2-1:2]];
+                    if(ar_addr_l[31:2] < DW-1) begin
+                        ar_data_l      <= data_l[ar_addr_l[DI+2-1:2]];
+
+                    end else if(ar_addr_l[31:2] == DW) begin
+                        ar_data_l      <= status;
+
+                    end else begin
+                        ar_data_l      <= 'b0;
+
+                    end
 
                     // Next State
                     rd_state           <= AXI_RD;                               // Next State :: AXI_RD
@@ -269,8 +283,11 @@ module ups_axi#(
                 // -------------------------------------------------------------
                 AXI_WDEC : begin
                     // Write Data to Structure
-                    data_l[aw_addr_l[DI+2-1:2]] <= aw_data_l;
-                    dv_l[aw_addr_l[DI+2-1:2]]   <= 1'b1;
+                    if(aw_addr_l[31:2] < DW-1) begin
+                        data_l[aw_addr_l[DI+2-1:2]]    <= aw_data_l;
+                        dv_l[aw_addr_l[DI+2-1:2]]      <= 1'b1;
+
+                    end
 
                     // Next State
                     wr_state           <= AXI_WB;                               // Next State :: AXI_WB

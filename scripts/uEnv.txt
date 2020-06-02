@@ -2,7 +2,7 @@ machine_name=zynq-artyz7
 data_kernel=uImage
 addr_kernel=0x4100000
 data_dt=devicetree.dtb
-addr_dt=0x4000000
+addr_dt=0x5000000
 data_rfs=rootfs
 addr_rfs=0x2000000
 bootargs=earlyprintk console=ttyPS0,115200 root=/dev/mmcblk0p2 rw rootwait

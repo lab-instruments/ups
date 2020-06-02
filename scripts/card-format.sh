@@ -14,20 +14,15 @@ function usage() {
 }
 
 # Start Scripts
-printf "   * Card-Format Script\n"
+printf "     - Card-Format Script\n"
 
 # Argument Defaults
 LOG_DIR=`pwd`
-CARD_DEV=""
+CARD=""
 
 # Parse Command Line Inputs
 for i in "$@" ; do
     case $i in
-
-#         -e=*|--extension=*)
-#             EXTENSION="${i#*=}"
-#             shift # past argument=value
-#             ;;
 
         --card_dev=*)
             DEV="${i#*=}"
@@ -47,13 +42,17 @@ for i in "$@" ; do
     esac
 done
 
+# Start Log
+LOG=${LOG_DIR}/card-format.log
+echo "" > ${LOG}
+
 if [ "${DEV}" != "" ]; then
     # Format Card
-    dd if=/dev/zero of=${DEV} bs=1024 count=1
-    BYTES=`fdisk -l ${DEV} | grep 'Disk \/dev' | awk '{print $5}'`
-    echo ${BYTES}
+    dd if=/dev/zero of=/dev/${DEV} bs=1024 count=1                  &>> ${LOG}
+    BYTES=`fdisk -l /dev/${DEV} | grep 'Disk \/dev' | awk '{print $5}'`
+    # echo ${BYTES}
     CYL=$((${BYTES}/8225280))
-    echo ${CYL}
+    # echo ${CYL}
 
     (
         echo x       # Expert Mode
@@ -84,13 +83,14 @@ if [ "${DEV}" != "" ]; then
         echo 83
         echo p
         echo w
-    ) | fdisk ${DEV}
+    ) | fdisk /dev/${DEV}                                           &>> ${LOG}
 
-    mkfs.vfat -F 32 -n boot ${DEV}1
-    mkfs.ext4 -L rootfs ${DEV}2
+    mkfs.vfat -F 32 -n BOOT /dev/${DEV}1                            &>> ${LOG}
+    mkfs.ext4 -F -L ROOTFS /dev/${DEV}2                             &>> ${LOG}
 
 else
     printf "     - Card DEV Not Defined .. Exit\n"
     exit 1
 
 fi
+

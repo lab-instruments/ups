@@ -26,6 +26,60 @@ class Hal:
                                    offset=0x43C00000
                                   )
 
+    def set_run_cnt(self, val):
+        # Write RUN COUNT Memory Map Word
+        self.mmap_ctrl.seek(24)
+        self.mmap_ctrl.write(struct.pack('I', val))
+
+    def get_run_cnt(self):
+        # Read RUN COUNT Memory Map Word
+        self.mmap_ctrl.seek(24)
+        val = self.mmap_ctrl.read(4)
+        return struct.unpack('I', val)[0]
+
+    def set_run_pre_cnt(self, val):
+        # Write RUN PRE COUNT Memory Map Word
+        self.mmap_ctrl.seek(20)
+        self.mmap_ctrl.write(struct.pack('I', val))
+
+    def get_run_pre_cnt(self):
+        # Read RUN PRE COUNT Memory Map Word
+        self.mmap_ctrl.seek(20)
+        val = self.mmap_ctrl.read(4)
+        return struct.unpack('I', val)[0]
+
+    def set_run_post_cnt(self, val):
+        # Write RUN POST COUNT Memory Map Word
+        self.mmap_ctrl.seek(28)
+        self.mmap_ctrl.write(struct.pack('I', val))
+
+    def get_run_post_cnt(self):
+        # Read RUN POST COUNT Memory Map Word
+        self.mmap_ctrl.seek(28)
+        val = self.mmap_ctrl.read(4)
+        return struct.unpack('I', val)[0]
+
+    def set_run_loops(self, val):
+        # Write RUN LOOPS Memory Map Word
+        self.mmap_ctrl.seek(16)
+        self.mmap_ctrl.write(struct.pack('I', val))
+
+    def get_run_loops(self):
+        # Read RUN LOOPS Memory Map Word
+        self.mmap_ctrl.seek(16)
+        val = self.mmap_ctrl.read(4)
+        return struct.unpack('I', val)[0]
+
+    def set_run_start(self):
+        # Write RUN POST COUNT Memory Map Word
+        self.mmap_ctrl.seek(32)
+        self.mmap_ctrl.write(struct.pack('I', 0))
+
+    def set_run_stop(self):
+        # Read RUN POST COUNT Memory Map Word
+        self.mmap_ctrl.seek(36)
+        self.mmap_ctrl.write(struct.pack('I', 0))
+
     def set_led(self, val):
         # Write LED Memory Map Word
         self.mmap_led.seek(0)
@@ -64,7 +118,7 @@ class Hal:
         self.mmap_ctrl.seek(8)
         self.mmap_ctrl.write(struct.pack('I', val))
 
-    def get_dac1(self, val):
+    def get_dac1(self):
         # Get DAC1 Value
         self.mmap_ctrl.seek(8)
         val = self.mmap_ctrl.read(4)
@@ -75,9 +129,15 @@ class Hal:
         self.mmap_ctrl.seek(12)
         self.mmap_ctrl.write(struct.pack('I', val))
 
-    def get_valve(self, val):
+    def get_valve(self):
         # Get Mode Value
         self.mmap_ctrl.seek(12)
+        val = self.mmap_ctrl.read(4)
+        return struct.unpack('I', val)[0]
+
+    def get_status(self):
+        # Get Status Value
+        self.mmap_ctrl.seek(64)
         val = self.mmap_ctrl.read(4)
         return struct.unpack('I', val)[0]
 

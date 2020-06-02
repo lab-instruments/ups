@@ -127,6 +127,7 @@ if [ -f ${RFS} ]; then
         cp ${RFS} ${DD}
     fi
 else
+    echo "No RFS"
     BUILD_FAIL=1
 fi
 
@@ -139,6 +140,7 @@ if [ -f ${UIM} ]; then
         cp ${UIM} ${DD}
     fi
 else
+    echo "No Kernel"
     BUILD_FAIL=1
 fi
 

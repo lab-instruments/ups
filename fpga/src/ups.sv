@@ -4,8 +4,8 @@
 //  Date        :  02.20.2019
 //  Description :  UPS Project Top Level
 // -----------------------------------------------------------------------------
-`define DW 8
-`define DI 3
+`define DW 16
+`define DI 4
 module ups(
     // -------------------------------------------------------------------------
     //  DDR Signals
@@ -70,9 +70,9 @@ module ups(
     logic               rst_n_l;
 
     // Address Read Cycle
-    logic [31:0]       ca4l_araddr_l;
-    logic [ 0:0]       ca4l_arready_l;
-    logic [ 0:0]       ca4l_arvalid_l;
+    logic [31:0]        ca4l_araddr_l;
+    logic [ 0:0]        ca4l_arready_l;
+    logic [ 0:0]        ca4l_arvalid_l;
 
     // Address Read Cycle
     logic [31:0]        ca4l_awaddr_l;
@@ -99,6 +99,7 @@ module ups(
     // Control Data
     logic [`DW-1:0]     dv_l;
     logic   [31:0]      data_l[`DW-1:0];
+    logic [31:0]        status_l;
 
     // ADC Data
     logic               adc_dv_l;
@@ -123,10 +124,13 @@ module ups(
     logic              adc_din_l;
     logic              adc_cs_n_l;
 
+    // Valve Pins
+    logic              valve_l;
+
     // -------------------------------------------------------------------------
     //  Assigns
     // -------------------------------------------------------------------------
-    assign valve                       = data_l[3][0];                          // Route Valve Signal from Logic to Pin
+    assign valve                       = valve_l;                               // Assign Valvle Pin to Internal Sig
 
     assign adc_din_l                   = adc_din;                               // Assign ADC DIN Pin to Internal Sig
     assign adc_sclk                    = adc_sclk_l;                            // Assign Internal ADC SCLK to Pin
@@ -181,7 +185,28 @@ module ups(
         //  DAC1 Interface
         // ---------------------------------------------------------------------
         .dac1                          (dac1_data_l),
-        .dac1_dv                       (dac1_dv_l)
+        .dac1_dv                       (dac1_dv_l),
+
+        // ---------------------------------------------------------------------
+        //  Pinch Valve Control Interface
+        // ---------------------------------------------------------------------
+        .pv_test                       (data_l[3][0]),                          // Test Request for Valve Control
+        .pv                            (valve_l),                               // Output to Pinch Valve Pin
+
+        // ---------------------------------------------------------------------
+        //  Run Mode Interface
+        // ---------------------------------------------------------------------
+        .run_loops                     (data_l[4][7:0]),
+        .run_pre                       (data_l[5][7:0]),
+        .run                           (data_l[6][7:0]),
+        .run_post                      (data_l[7][7:0]),
+        .run_start                     (dv_l[8]),
+        .run_stop                      (dv_l[9]),
+
+        // ---------------------------------------------------------------------
+        //  Status Interface
+        // ---------------------------------------------------------------------
+        .status                        (status_l)
 
     );
 
@@ -242,10 +267,17 @@ module ups(
     // -------------------------------------------------------------------------
     data_ila data_ila0(
         .clk                           (fclk_l),
-        .probe0                        (dv_l[2:0]),
+        .probe0                        (dv_l),
         .probe1                        (data_l[0]),
         .probe2                        (data_l[1]),
-        .probe3                        (data_l[2])
+        .probe3                        (data_l[2]),
+        .probe4                        (data_l[3]),
+        .probe5                        (data_l[4]),
+        .probe6                        (data_l[5]),
+        .probe7                        (data_l[6]),
+        .probe8                        (data_l[7]),
+        .probe9                        (data_l[8]),
+        .probe10                       (data_l[9])
     );
 
     // -------------------------------------------------------------------------
@@ -384,6 +416,11 @@ module ups(
         // ---------------------------------------------------------------------
         .data                          (data_l),
         .dv                            (dv_l),
+
+        // -------------------------------------------------------------------------
+        //  Register Input
+        // -------------------------------------------------------------------------
+        .status                        (status_l),
 
         // ---------------------------------------------------------------------
         //  AXI4-Lite Interface

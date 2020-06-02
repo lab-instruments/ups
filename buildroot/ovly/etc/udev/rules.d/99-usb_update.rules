@@ -1,0 +1,1 @@
+ACTION=="add", KERNEL=="sd?[1-9]", SUBSYSTEMS=="usb", DRIVERS=="usb-storage", RUN+="/usr/local/bin/usb_update.sh %k"

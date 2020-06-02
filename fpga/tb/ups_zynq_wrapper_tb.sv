@@ -231,25 +231,46 @@ module ups_zynq_wrapper(
     // -------------------------------------------------------------------------
     initial begin : AXI4L_TEST
         #3000;
-        axi4l_write(32'h0, 32'h2);
+        axi4l_write(32'h0, 32'h2);     // Set Mode to 2 {DEBUG}
 
         #150;
-        axi4l_read(32'h0);
+        axi4l_read(32'h0);             // Read Mode
 
         #150;
-        axi4l_write(32'h4, 32'h800);
+        axi4l_write(32'h4, 32'h800);   // Set DAC0 to 0x800
 
         #2000;
-        axi4l_read(32'h4);
+        axi4l_read(32'h4);             // Read DAC0
 
         #150;
-        axi4l_write(32'h8, 32'hC00);
+        axi4l_write(32'h8, 32'hC00);   // Set DAC1 to 0xC00
 
         #150;
-        axi4l_write(32'hC, 32'h1);
+        axi4l_write(32'hC, 32'h1);     // Set Valve to On
 
         #150;
-        axi4l_write(32'hC, 32'h0);
+        axi4l_write(32'hC, 32'h0);     // Set Valve to Off
+
+        #1000;
+        axi4l_write(32'h0, 32'h3);     // Set Mode to 3 {RUN}
+        axi4l_write(32'h10, 32'h2);    // Set Loops
+        axi4l_write(32'h14, 32'h2);    // Set Pre Count to 2
+        axi4l_write(32'h18, 32'h1);    // Set Run Count to 1
+        axi4l_write(32'h1C, 32'h3);    // Set Post Count to 3
+        #10
+        axi4l_write(32'h20, 32'h0);    // Hit Start Strobe
+
+        #20000000
+        axi4l_write(32'h20, 32'h0);    // Hit Start Strobe
+        #100
+        axi4l_read(32'h40);            // Read Status
+        #2000000
+        axi4l_write(32'h24, 32'h0);    // Hit Stop Strobe
+        #100
+        axi4l_read(32'h40);            // Read Status
+        // #20000
+        // axi4l_write(32'h20, 32'h0);    // Hit Start Strobe
+
 
     end
 

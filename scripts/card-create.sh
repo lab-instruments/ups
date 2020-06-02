@@ -16,7 +16,7 @@ function usage() {
 }
 
 # Start Scripts
-printf "   * Card-Create Script\n"
+printf "     - Card-Create Script\n"
 
 # Argument Defaults
 LOG_DIR=`pwd`
@@ -61,9 +61,9 @@ for i in "$@" ; do
     esac
 done
 
-
-# Setup Paths
-# BOOTG=${XSDK}/bin/bootgen
+# Setup Log
+LOG=${LOG_DIR}/card-create.log
+echo "" > ${LOG}
 
 if [ "${BOOTG}" == "" ]; then
     exit 1
@@ -79,20 +79,19 @@ echo "}"                            >> ./boot.bif
 
 
 # Build BOOT.BIN
-$BOOTG -image ./boot.bif -o i BOOT.bin -w
+$BOOTG -image ./boot.bif -o i BOOT.bin -w                           &>> ${LOG}
 
 if [ ! -d /mnt/boot ]; then
     mkdir -p /mnt/boot
 fi
 mount /dev/${DEV}1 /mnt/boot
 
-if [ ! -d /mnt/rootfs ]; then
-    mkdir -p /mnt/rootfs
-fi
-mount /dev/${DEV}2 /mnt/rootfs
-cp ./BOOT.bin /mnt/rootfs/
+# if [ ! -d /mnt/rootfs ]; then
+#     mkdir -p /mnt/rootfs
+# fi
+# mount /dev/${DEV}2 /mnt/rootfs
+# cp ./BOOT.bin /mnt/rootfs/
 
-# cp ${SD}/u-boot.elf             /mnt/boot
 cp ${SD}/rootfs.cpio.uboot      /mnt/boot/rootfs
 cp ${SD}/uImage                 /mnt/boot
 cp ${SD}/zynq-coraz7.dtb        /mnt/boot/devicetree.dtb
@@ -100,4 +99,4 @@ cp ./uEnv.txt                   /mnt/boot
 cp ./BOOT.bin                   /mnt/boot
 
 umount /dev/${DEV}1
-umount /dev/${DEV}2
+# umount /dev/${DEV}2

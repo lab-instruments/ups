@@ -1,6 +1,6 @@
 the_ROM_image:
 {
-	[bootloader]../deploy/fsbl.elf
-	../deploy/ups.bit
-	../deploy/u-boot.elf
+	[bootloader]/local/git/ups/deploy/fsbl.elf
+	/local/git/ups/deploy/ups.bit
+	/local/git/ups/deploy/u-boot.elf
 }
