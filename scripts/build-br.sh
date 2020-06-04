@@ -107,6 +107,7 @@ echo "" > ${LOG}
 if [ ! -d ${BD} ]; then
     # Clone Git Repo
     git clone https://github.com/buildroot/buildroot.git ${BD}       &>> ${LOG}
+    cd ${BD}
 
     # Copy Configuration Files
     cp ${CD}/zynq_cora_defconfig ${BD}/configs/
@@ -114,9 +115,11 @@ if [ ! -d ${BD} ]; then
     # Setup Build
     make zynq_cora_defconfig                                         &>> ${LOG}
 
+else
+    cd ${BD}
+
 fi
 
-cd ${BD}
 
 # ------------------------------------------------------------------------------
 #  Build

@@ -277,8 +277,7 @@ module ups(
         .probe7                        (data_l[6]),
         .probe8                        (data_l[7]),
         .probe9                        (data_l[8]),
-        .probe10                       (data_l[9]),
-        .probe11                       (status_l)
+        .probe10                       (data_l[9])
     );
 
     // -------------------------------------------------------------------------
