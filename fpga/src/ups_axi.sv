@@ -58,6 +58,11 @@ module ups_axi#(
 );
 
     // -------------------------------------------------------------------------
+    //  Constants
+    // -------------------------------------------------------------------------
+    const logic [DI-1:0] DW_L = DW-1;
+
+    // -------------------------------------------------------------------------
     //  Typedefs
     // -------------------------------------------------------------------------
     typedef enum logic[5:0] { AXI_AR, AXI_RDEC, AXI_RD } rd_state_t;
@@ -163,14 +168,14 @@ module ups_axi#(
                 // -------------------------------------------------------------
                 AXI_RDEC : begin
                     // Decode Address
-                    if(ar_addr_l[31:2] < DW-1) begin
+                    if(ar_addr_l < 32'd64) begin
                         ar_data_l      <= data_l[ar_addr_l[DI+2-1:2]];
 
-                    end else if(ar_addr_l[31:2] == DW) begin
-                        ar_data_l      <= status;
+                    // end else if(ar_addr_l == 32'd64) begin
+                    //     ar_data_l      <= status;
 
                     end else begin
-                        ar_data_l      <= 'b0;
+                        ar_data_l      <= status;
 
                     end
 
@@ -283,7 +288,7 @@ module ups_axi#(
                 // -------------------------------------------------------------
                 AXI_WDEC : begin
                     // Write Data to Structure
-                    if(aw_addr_l[31:2] < DW-1) begin
+                    if(aw_addr_l[DI+2-1:2] < DW_L) begin
                         data_l[aw_addr_l[DI+2-1:2]]    <= aw_data_l;
                         dv_l[aw_addr_l[DI+2-1:2]]      <= 1'b1;
 

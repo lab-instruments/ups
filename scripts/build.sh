@@ -58,6 +58,7 @@ BUILD_UBOOT=0
 BUILD_FPGA_HW=0
 BUILD_FPGA_SW=0
 BUILD_BR=0
+FINALIZE=0
 BUILD_ALL=1
 
 # Parse Command Line Inputs
@@ -88,6 +89,12 @@ for i in "$@" ; do
             shift
             ;;
 
+        --finalize)
+            BUILD_ALL=0
+            FINALIZE=1
+            shift
+            ;;
+
         *)
             echo "Incorrect Command Line Argument .. ${i}"
             exit 1
@@ -113,6 +120,7 @@ disp "BUILD UBOOT      :  ${BUILD_UBOOT}" 3
 disp "BUILD FPGA HW    :  ${BUILD_FPGA_HW}" 3
 disp "BUILD FPGA SW    :  ${BUILD_FPGA_SW}" 3
 disp "BUILD BUILDROOT  :  ${BUILD_BR}" 3
+disp "BUILD FINALIZE   :  ${FINALIZE}" 3
 echo
 disp "START BUILD" 3
 echo
@@ -141,7 +149,13 @@ fi
 # ------------------------------------------------------------------------------
 #  Build FPGA SDK
 # ------------------------------------------------------------------------------
-# ./build-yocto.sh --build_dir=${BD} --conf_dir=${CD}
 if [ $BUILD_ALL -eq 1 ] || [ $BUILD_BR -eq 1 ]; then
     ./build-br.sh --build_dir=${BD} --conf_dir=${CDB} --log_dir=${LD} --deploy_dir=${DD}
+fi
+
+# ------------------------------------------------------------------------------
+#  Run Finalize Script
+# ------------------------------------------------------------------------------
+if [ $BUILD_ALL -eq 1 ] || [ $FINALIZE -eq 1 ]; then
+    ./finalize.sh --log_dir=${LD} --deploy_dir=${DD}
 fi

@@ -81,8 +81,32 @@ class RestServer:
         # Status Node
         self.app.route('/status', method='GET', callback=self.get_status)
 
+        # Version Node
+        self.app.route('/ver', status='GET', callback=self.get_ver)
+
     # --------------------------------------------------------------------------
-    #  Get Stauts
+    #  Get Version
+    # --------------------------------------------------------------------------
+    # Get STATUS Values
+    def get_ver(self):
+        # Log Request
+        log.info('Get VERSION request')
+
+        # Open File and Read Version/Status
+        with open('/root/version', 'r') as f:
+            lines = f.readlines()
+
+        # Create Response
+        resp = {}
+        resp['GIT_VER'] = lines[0].rstrip()
+        resp['GIT_STAT'] = lines[1].rstrip()
+        resp['STATUS'] = 0
+
+        # Return
+        return HTTPResponse(status=200, body=resp)
+
+    # --------------------------------------------------------------------------
+    #  Get Status
     # --------------------------------------------------------------------------
     # Get STATUS Values
     def get_status(self):

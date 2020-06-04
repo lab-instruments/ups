@@ -98,7 +98,7 @@ module ups(
 
     // Control Data
     logic [`DW-1:0]     dv_l;
-    logic   [31:0]      data_l[`DW-1:0];
+    logic [31:0]        data_l[`DW-1:0];
     logic [31:0]        status_l;
 
     // ADC Data
@@ -277,7 +277,8 @@ module ups(
         .probe7                        (data_l[6]),
         .probe8                        (data_l[7]),
         .probe9                        (data_l[8]),
-        .probe10                       (data_l[9])
+        .probe10                       (data_l[9]),
+        .probe11                       (status_l)
     );
 
     // -------------------------------------------------------------------------

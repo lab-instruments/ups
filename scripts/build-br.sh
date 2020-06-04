@@ -32,11 +32,6 @@ CONF_DIR=""
 for i in "$@" ; do
     case $i in
 
-#         -e=*|--extension=*)
-#             EXTENSION="${i#*=}"
-#             shift # past argument=value
-#             ;;
-
         --build_dir=*)
             BUILD_DIR="${i#*=}"
             shift
@@ -78,39 +73,54 @@ disp "Config Dir :  ${CD}" 3
 disp "Deploy Dir :  ${DD}" 3
 
 # ------------------------------------------------------------------------------
-#  Clean Build Artifacts
+#  Create Version File
 # ------------------------------------------------------------------------------
-if [ -f ${RFS} ]; then
-    rm ${RFS}
+# Create Version File
+VER=${CD}/ovly/root/version
+
+if [ -f ${VER} ]; then
+    rm ${VER}
+    touch ${VER}
+else
+    touch ${VER}
 fi
 
-if [ -f ${UIM} ]; then
-    rm ${UIM}
+# Generate Short Hash
+HASH=`git rev-parse HEAD`
+HASH_SHORT=${HASH:0:8}
+echo ${HASH_SHORT}          >> ${VER}
+
+# Look for Git Changes
+if git diff-index --quiet HEAD --; then
+    echo "CLEAN"            >> ${VER}
+else
+    echo "DIRTY"            >> ${VER}
 fi
 
+# Start Log
 echo "" > ${LOG}
 
 # ------------------------------------------------------------------------------
-#  Get Yocto Poky Source and Checkout Branch
+#  Get Buildroot Repo
 # ------------------------------------------------------------------------------
 # Check if Repo Exists Already
 if [ ! -d ${BD} ]; then
+    # Clone Git Repo
     git clone https://github.com/buildroot/buildroot.git ${BD}       &>> ${LOG}
-    cd ${BD}
-else
-    cd ${BD}
-    make clean                                                       &>> ${LOG}
+
+    # Copy Configuration Files
+    cp ${CD}/zynq_cora_defconfig ${BD}/configs/
+
+    # Setup Build
+    make zynq_cora_defconfig                                         &>> ${LOG}
+
 fi
 
-# ------------------------------------------------------------------------------
-#  Setup Build
-# ------------------------------------------------------------------------------
-# Copy Configuration Files
-cp ${CD}/zynq_cora_defconfig ${BD}/configs/
+cd ${BD}
 
-# Setup Build Environment
-make zynq_cora_defconfig                                             &>> ${LOG}
-
+# ------------------------------------------------------------------------------
+#  Build
+# ------------------------------------------------------------------------------
 # Build
 make BR2_EXTERNAL_OVLY=${CD}                                         &>> ${LOG}
 

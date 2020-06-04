@@ -235,6 +235,7 @@ module ups_zynq_wrapper(
 
         #150;
         axi4l_read(32'h0);             // Read Mode
+        axi4l_read(32'h40);            // Read Status
 
         #150;
         axi4l_write(32'h4, 32'h800);   // Set DAC0 to 0x800
