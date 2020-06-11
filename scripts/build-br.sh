@@ -91,7 +91,7 @@ HASH_SHORT=${HASH:0:8}
 echo ${HASH_SHORT}          >> ${VER}
 
 # Look for Git Changes
-if git diff-index --quiet HEAD --; then
+if git diff-files --quiet ; then
     echo "CLEAN"            >> ${VER}
 else
     echo "DIRTY"            >> ${VER}
