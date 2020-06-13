@@ -131,7 +131,13 @@ module ups_ctrl(
     logic [ 2:0]   adc_dv_sr_l;
     logic [11:0]   adc_conv_data_l;
     logic          adc_conv_dv_l;
-    logic [31:0]   adc_conv_int_l;
+
+    logic [25:0]   adc_accum_l;
+    logic [11:0]   adc_shft_l[0:15];
+    logic [11:0]   adc_raw_data_l;
+    logic          adc_raw_dv_l;
+    logic [31:0]   adc_raw_int_l;
+    logic [11:0]   adc_sub_l;
     logic [11:0]   adc_reg_l;
 
     // Run Mode Control Registers
@@ -176,9 +182,9 @@ module ups_ctrl(
         // Sync Reset
         if(rst_n == 1'b0) begin
             adc_dv_sr_l                <= 'b0;                                  // Reset Shift Register
-            adc_conv_data_l            <= 'b0;                                  // Reset Converted Data Reg
-            adc_conv_dv_l              <= 'b0;                                  // Reset Converted Data Valid
-            adc_conv_int_l             <= 'b0;                                  // Reset Intermediate Data
+            adc_raw_data_l             <= 'b0;                                  // Reset Converted Data Reg
+            adc_raw_dv_l               <= 'b0;                                  // Reset Converted Data Valid
+            adc_raw_int_l              <= 'b0;                                  // Reset Intermediate Data
             adc_reg_l                  <= 'b0;                                  // Reset ADC Data Register
 
         end else begin
@@ -189,13 +195,13 @@ module ups_ctrl(
             adc_dv_sr_l[2:1]           <= adc_dv_sr_l[1:0];                     // Shift!
             adc_dv_sr_l[0]             <= adc_dv;                               // Register ADC Data Valid
             adc_reg_l                  <= adc;                                  // Register ADC Data
-            adc_conv_dv_l              <= 1'b0;                                 // Normally Not Valid
+            adc_raw_dv_l               <= 1'b0;                                 // Normally Not Valid
 
             // -----------------------------------------------------------------
             //  Generate Intermediate Data
             // -----------------------------------------------------------------
             if(adc_dv_sr_l[0] == 1'b1) begin
-                adc_conv_int_l         <= adc_reg_l * conv_c;                   // Convert Data
+                adc_raw_int_l          <= adc_reg_l * conv_c;                   // Convert Data
 
             end
 
@@ -203,8 +209,35 @@ module ups_ctrl(
             //  Generate Converted Data
             // -----------------------------------------------------------------
             if(adc_dv_sr_l[1] == 1'b1) begin
-                adc_conv_data_l        <= adc_conv_int_l[23:12];                // Slice Data
-                adc_conv_dv_l          <= 1'b1;                                 // Indicate Valid
+                adc_raw_data_l         <= adc_raw_int_l[23:12];                 // Slice Data
+                adc_raw_dv_l           <= 1'b1;                                 // Indicate Valid
+
+            end
+        end
+    end
+
+    // -------------------------------------------------------------------------
+    //  Boxcar Average Converted Samples
+    // -------------------------------------------------------------------------
+    always @(posedge clk) begin : ADC_FILTER
+        if (rst_n == 1'b0) begin
+            adc_accum_l                <= 'h0;
+            adc_shft_l                 <= {'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0, 'h0};
+            adc_sub_l                  <= 'h0;
+            adc_conv_dv_l              <= 'b0;
+            adc_conv_data_l            <= 'b0;
+
+        end else begin
+            // Defaults
+            adc_conv_dv_l              <= 1'b0;
+
+            // Boxcar Average
+            if(adc_raw_dv_l == 1'b1) begin
+                adc_accum_l            <= adc_accum_l + adc_raw_data_l - adc_sub_l;
+                adc_shft_l             <= { adc_raw_data_l, adc_shft_l[0:14]};
+                adc_sub_l              <= adc_shft_l[14];
+                adc_conv_data_l        <= adc_accum_l[15:4];
+                adc_conv_dv_l          <= 1'b1;
 
             end
         end
