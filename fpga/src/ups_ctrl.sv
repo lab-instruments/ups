@@ -36,6 +36,11 @@ module ups_ctrl(
     input          adc_dv,
 
     // -------------------------------------------------------------------------
+    //  DAC General Control
+    // -------------------------------------------------------------------------
+    input          dac_busy,
+
+    // -------------------------------------------------------------------------
     //  DAC0 Interface
     // -------------------------------------------------------------------------
     output [11:0]  dac0,
@@ -458,7 +463,7 @@ module ups_ctrl(
 
                         end
 
-                    end else begin
+                    end else if(dac_busy == 1'b0) begin
                         // Reset Counter and Next State
                         run_cnt_l      <= 'b0;                                  // Reset Counter
                         state          <= CTRL_RUN_POST_PULSE;                  // Next State :: CTRL_RUN_POST_PULSE

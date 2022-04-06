@@ -1,13 +1,7 @@
 #!/bin/sh
 
 # Create Log
-LOG=/tmp/usb_update.log
-echo ""                                                    >   ${LOG}
-echo " -- USB UPDATE SCRIPT"                               >>  ${LOG}
-
-# Timestamp
-echo `date`                                                >>  ${LOG}
-echo ""
+logger -t usb_update "Start USB update script"                               >>  ${LOG}
 
 # Get Number
 SD_NUM=${1:3:1}
@@ -16,16 +10,15 @@ SD_NUM=${1:3:1}
 MNT=/mnt/usb${SD_NUM}
 
 # Logging
-echo "USB mass storage device detected : $1"               >>  ${LOG}
-echo "SD number                        : ${SD_NUM}"        >>  ${LOG}
-echo "Mount location                   : ${MNT}"           >>  ${LOG}
-echo ""
+logger -t usb_update "USB mass storage device detected : $1"
+logger -t usb_update "SD number                        : ${SD_NUM}"
+logger -t usb_update "Mount location                   : ${MNT}"
 
 # ------------------------------------------------------------------------------
 #  Mount
 # ------------------------------------------------------------------------------
 echo
-echo "Attempt to mount /dev/$1 at ${MNT}"                  >>  ${LOG}
+logger -t usb_update "Attempt to mount /dev/$1 at ${MNT}"
 
 # Check if USB Mount Directory Exists
 if [ ! -d ${MNT} ]; then
@@ -48,17 +41,31 @@ mount /dev/mmcblk0p1 /mnt/BOOT
 # ------------------------------------------------------------------------------
 # Check if Correct Structure Exists
 if [ -f ${MNT}/update ]; then
-    echo "Update request file exists"                      >>  ${LOG}
-    cp ${MNT}/files/* /mnt/BOOT/                           &>> ${LOG}
-
+    logger -t usb_update "Update request file exists"
 else
-    echo "Update request file does not exist .. Exit"      >>  ${LOG}
+    logger -t usb_update "Update request file does not exist .. Exit"
     exit 0
-
 fi
+
+# Check for the Version
+USB_VER=`cat ${MNT}/update`
+CUR_VER=$(head -n 1 /root/version)
+
+if [ ${USB_VER} == ${CUR_VER} ]; then
+    if [ -f ${MNT}/force ]; then
+        logger -t usb_update "Git versions are equal but force is set"
+    else
+        logger -t usb_update "Git versions are equal .. skip update"
+        exit 0
+    fi
+fi
+
+cp ${MNT}/files/* /mnt/BOOT/
 
 # Cleanup
 umount /mnt/BOOT
 umount ${MNT}
 rm -rf /mnt/BOOT
 rm -rf ${MNT}
+
+logger -t usb_update Update complete

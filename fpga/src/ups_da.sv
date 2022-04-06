@@ -30,7 +30,8 @@ module ups_da(
     output         dout0,
     output         dout1,
     output         cs_n,
-    output         ldac_n
+    output         ldac_n,
+    output         busy
 
 );
 
@@ -58,6 +59,7 @@ module ups_da(
     logic         dout0_l;
     logic         dout1_l;
     logic         ldac_n_l;
+    logic         busy_l;
 
     // Internal Register
     logic [15:0]  data0_l;
@@ -76,6 +78,7 @@ module ups_da(
     assign dout0                       = dout0_l;
     assign dout1                       = dout1_l;
     assign ldac_n                      = ldac_n_l;
+    assign busy                        = busy_l;
 
     // -------------------------------------------------------------------------
     //  Generate SCLK
@@ -122,6 +125,7 @@ module ups_da(
             sclk_reg_l                 <= sclk_l;                               // Register Clock
             sclk_out_l                 <= 1'b1;                                 // Normally Not Output Clock
             ldac_n_l                   <= 1'b1;                                 // Normally Deassert LDAC
+            busy_l                     <= 1'b1;                                 // Normally Assert Busy
 
             // -----------------------------------------------------------------
             //  Case Statement
@@ -135,6 +139,10 @@ module ups_da(
                 //    and move onto send the data.
                 // -------------------------------------------------------------
                 DA_INIT : begin
+                    // Hold Busy Low While in IDLE
+                    busy_l             <= 1'b0;                                 // Deassert Busy While in IDLE
+
+                    // Wait for Data Valid(s)
                     if((dv0 == 1'b1) || (dv1 == 1'b1)) begin
                         state          <= DA_CS_START;                          // Next State :: DA_CS_START
                         dcnt_l         <= 5'h10;                                // Reset Counter

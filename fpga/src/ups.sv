@@ -118,6 +118,7 @@ module ups(
     logic              dac_dout0_l;
     logic              dac_dout1_l;
     logic              dac_cs_n_l;
+    logic              dac_busy_l;
 
     // ADC SPI Interface Internal sSignals
     logic              adc_sclk_l;
@@ -174,6 +175,11 @@ module ups(
         // ---------------------------------------------------------------------
         .adc                           (adc_data_l),
         .adc_dv                        (adc_dv_l),
+
+        // ---------------------------------------------------------------------
+        //  DAC General Control
+        // ---------------------------------------------------------------------
+        .dac_busy                      (dac_busy_l),
 
         // ---------------------------------------------------------------------
         //  DAC0 Interface
@@ -259,7 +265,8 @@ module ups(
         .probe4                        (dac_sclk_l),
         .probe5                        (dac_dout0_l),
         .probe6                        (dac_dout1_l),
-        .probe7                        (dac_cs_n_l)
+        .probe7                        (dac_cs_n_l),
+        .probe8                        (dac_busy_l)
     );
 
     // -------------------------------------------------------------------------
@@ -308,7 +315,8 @@ module ups(
         .sclk                          (dac_sclk_l),
         .dout0                         (dac_dout0_l),
         .dout1                         (dac_dout1_l),
-        .cs_n                          (dac_cs_n_l)
+        .cs_n                          (dac_cs_n_l),
+        .busy                          (dac_busy_l)
     );
 
     // -------------------------------------------------------------------------
