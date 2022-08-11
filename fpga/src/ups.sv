@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------------
 `define DW 16
 `define DI 4
+`define NEW_BOARD
 module ups(
     // -------------------------------------------------------------------------
     //  DDR Signals
@@ -37,19 +38,26 @@ module ups(
     inout               ps_srstb,
 
     // -------------------------------------------------------------------------
-    //  DAC SPI Interface
+    //  DAC0 SPI Interface
     // -------------------------------------------------------------------------
-    output              dac_sclk,
-    output              dac_dout0,
-    output              dac_dout1,
-    output              dac_cs_n,
+    input               vaux1_p,
+    input               vaux1_n,
 
     // -------------------------------------------------------------------------
-    //  ADC SPI Interface
+    //  DAC0 SPI Interface
     // -------------------------------------------------------------------------
-    output              adc_sclk,
-    input               adc_din,
-    output              adc_cs_n,
+    output              dac0_sclk,
+    output              dac0_dout,
+    output              dac0_cs_n,
+    output              dac0_ldac,
+
+    // -------------------------------------------------------------------------
+    //  DAC1 SPI Interface
+    // -------------------------------------------------------------------------
+    output              dac1_sclk,
+    output              dac1_dout,
+    output              dac1_cs_n,
+    output              dac1_ldac,
 
     // -------------------------------------------------------------------------
     //  OD Interface
@@ -114,11 +122,18 @@ module ups(
     logic [11:0]       dac1_data_l;
 
     // DAC SPI Interface Internal Signals
-    logic              dac_sclk_l;
-    logic              dac_dout0_l;
-    logic              dac_dout1_l;
-    logic              dac_cs_n_l;
-    logic              dac_busy_l;
+    logic              dac0_sclk_l;
+    logic              dac0_dout_l;
+    logic              dac0_cs_n_l;
+    logic              dac0_ldac_n_l;
+    logic              dac0_busy_l;
+
+    logic              dac1_sclk_l;
+    logic              dac1_dout_l;
+    logic              dac1_cs_n_l;
+    logic              dac1_ldac_n_l;
+    logic              dac1_busy_l;
+
 
     // ADC SPI Interface Internal sSignals
     logic              adc_sclk_l;
@@ -133,14 +148,15 @@ module ups(
     // -------------------------------------------------------------------------
     assign valve                       = valve_l;                               // Assign Valvle Pin to Internal Sig
 
-    assign adc_din_l                   = adc_din;                               // Assign ADC DIN Pin to Internal Sig
-    assign adc_sclk                    = adc_sclk_l;                            // Assign Internal ADC SCLK to Pin
-    assign adc_cs_n                    = adc_cs_n_l;                            // Assign Internal ADC CS to Pin
+    assign dac0_sclk                   = dac0_sclk_l;                           // Assign Internal DAC SCLK to Pin
+    assign dac0_dout                   = dac0_dout_l;                           // Assign Internal DAC1 DOUT to Pin
+    assign dac0_cs_n                   = dac0_cs_n_l;                           // Assign Internal DAC CS to Pin
+    assign dac0_ldac                   = dac0_ldac_n_l;                         // Assign DAC LDAC to Pin
 
-    assign dac_sclk                    = dac_sclk_l;                            // Assign Internal DAC SCLK to Pin
-    assign dac_dout0                   = dac_dout0_l;                           // Assign Internal DAC0 DOUT to Pin
-    assign dac_dout1                   = dac_dout1_l;                           // Assign Internal DAC1 DOUT to Pin
-    assign dac_cs_n                    = dac_cs_n_l;                            // Assign Internal DAC CS to Pin
+    assign dac1_sclk                   = dac1_sclk_l;                           // Assign Internal DAC SCLK to Pin
+    assign dac1_dout                   = dac1_dout_l;                           // Assign Internal DAC1 DOUT to Pin
+    assign dac1_cs_n                   = dac1_cs_n_l;                           // Assign Internal DAC CS to Pin
+    assign dac1_ldac                   = dac1_ldac_n_l;                         // Assign DAC LDAC to Pin
 
     // -------------------------------------------------------------------------
     //  Analog to Digital Converter
@@ -179,7 +195,8 @@ module ups(
         // ---------------------------------------------------------------------
         //  DAC General Control
         // ---------------------------------------------------------------------
-        .dac_busy                      (dac_busy_l),
+        .dac0_busy                     (dac0_busy_l),
+        .dac1_busy                     (dac1_busy_l),
 
         // ---------------------------------------------------------------------
         //  DAC0 Interface
@@ -219,6 +236,28 @@ module ups(
     // -------------------------------------------------------------------------
     //  Analog to Digital Converter
     // -------------------------------------------------------------------------
+`ifdef NEW_BOARD
+    ups_ps ad(
+        // ---------------------------------------------------------------------
+        //  Clocks and Resets
+        // ---------------------------------------------------------------------
+        .clk                           (fclk_l),
+        .rst_n                         (rst_n_l),
+
+        // ---------------------------------------------------------------------
+        //  Converter Data Interface
+        // ---------------------------------------------------------------------
+        .data                          (adc_data_l),
+        .dv                            (adc_dv_l),
+
+        // ---------------------------------------------------------------------
+        //  Analog Preassure Sensor Input
+        // ---------------------------------------------------------------------
+        .vaux1_p                       (vaux1_p),
+        .vaux1_n                       (vaux1_n)
+
+    );
+`else
     ups_ad ad(
         // ---------------------------------------------------------------------
         //  Clocks and Resets
@@ -240,7 +279,9 @@ module ups(
         .cs_n                          (adc_cs_n_l)
 
     );
+`endif
 
+`ifndef NEW_BOARD
     // -------------------------------------------------------------------------
     //  ADC ILA
     // -------------------------------------------------------------------------
@@ -252,6 +293,7 @@ module ups(
         .probe3                        (adc_din_l),
         .probe4                        (adc_cs_n_l)
     );
+`endif
 
     // -------------------------------------------------------------------------
     //  DAC ILA
@@ -262,11 +304,17 @@ module ups(
         .probe1                        (dac0_data_l),
         .probe2                        (dac1_dv_l),
         .probe3                        (dac1_data_l),
-        .probe4                        (dac_sclk_l),
-        .probe5                        (dac_dout0_l),
-        .probe6                        (dac_dout1_l),
-        .probe7                        (dac_cs_n_l),
-        .probe8                        (dac_busy_l)
+        .probe4                        (dac1_sclk_l),
+        .probe5                        (dac1_dout_l),
+        .probe6                        (dac1_cs_n_l),
+        .probe7                        (dac1_busy_l),
+        .probe8                        (dac1_ldac_n_l),
+        .probe9                        (dac0_sclk_l),
+        .probe10                       (dac0_dout_l),
+        .probe11                       (dac0_cs_n_l),
+        .probe12                       (dac0_busy_l),
+        .probe13                       (dac0_ldac_n_l)
+
     );
 
     // -------------------------------------------------------------------------
@@ -290,6 +338,53 @@ module ups(
     // -------------------------------------------------------------------------
     //  Digital to Analog Converter
     // -------------------------------------------------------------------------
+`ifdef NEW_BOARD
+    ups_da2 da0(
+            // -----------------------------------------------------------------
+            //  Clocks and Resets
+            // -----------------------------------------------------------------
+            .clk                           (fclk_l),
+            .rst_n                         (rst_n_l),
+
+            // -----------------------------------------------------------------
+            //  Converter Data Interface
+            // -----------------------------------------------------------------
+            .dv                            (dac0_dv_l),
+            .data                          (dac0_data_l),
+
+            // -----------------------------------------------------------------
+            //  DAC SPI Interface
+            // -----------------------------------------------------------------
+            .sclk                          (dac0_sclk_l),
+            .dout                          (dac0_dout_l),
+            .cs_n                          (dac0_cs_n_l),
+            .ldac_n                        (dac0_ldac_n_l),
+            .busy                          (dac0_busy_l)
+        );
+
+    ups_da2 da1(
+            // -----------------------------------------------------------------
+            //  Clocks and Resets
+            // -----------------------------------------------------------------
+            .clk                           (fclk_l),
+            .rst_n                         (rst_n_l),
+
+            // -----------------------------------------------------------------
+            //  Converter Data Interface
+            // -----------------------------------------------------------------
+            .dv                            (dac1_dv_l),
+            .data                          (dac1_data_l),
+
+            // -----------------------------------------------------------------
+            //  DAC SPI Interface
+            // -----------------------------------------------------------------
+            .sclk                          (dac1_sclk_l),
+            .dout                          (dac1_dout_l),
+            .cs_n                          (dac1_cs_n_l),
+            .ldac_n                        (dac1_ldac_n_l),
+            .busy                          (dac1_busy_l)
+        );
+`else
     ups_da da(
         // ---------------------------------------------------------------------
         //  Clocks and Resets
@@ -318,6 +413,7 @@ module ups(
         .cs_n                          (dac_cs_n_l),
         .busy                          (dac_busy_l)
     );
+`endif
 
     // -------------------------------------------------------------------------
     //  Power on Reset
