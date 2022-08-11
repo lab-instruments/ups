@@ -92,6 +92,8 @@ set files [list                                                \
     [file normalize "${GIT}/../fpga/src/ups_axi.sv"]           \
     [file normalize "${GIT}/../fpga/src/ups_ctrl.sv"]          \
     [file normalize "${GIT}/../fpga/src/ups_da.sv"]            \
+    [file normalize "${GIT}/../fpga/src/ups_da2.sv"]           \
+    [file normalize "${GIT}/../fpga/src/ups_ps.sv"]            \
     [file normalize "${GIT}/../fpga/src/ups_por.sv"]           \
     [file normalize "${GIT}/../fpga/src/ups_zynq_wrapper.sv"]  \
     [file normalize "${GIT}/../fpga/src/ups.sv"]               \
@@ -155,11 +157,12 @@ set_property -name "top" -value "ups" -objects $obj
 
 # Add ILA
 set obj [get_filesets sources_1]
-set files [list                                          \
-    [file normalize "${GIT}/../fpga/cores/adc_ila.xci" ] \
-    [file normalize "${GIT}/../fpga/cores/dac_ila.xci" ] \
-    [file normalize "${GIT}/../fpga/cores/data_ila.xci" ] \
-    [file normalize "${GIT}/../fpga/cores/ups_xadc.xci" ] \
+set files [list                                                \
+    [file normalize "${GIT}/../fpga/cores/adc_ila.xci" ]       \
+    [file normalize "${GIT}/../fpga/cores/dac_ila.xci" ]       \
+    [file normalize "${GIT}/../fpga/cores/data_ila.xci" ]      \
+    [file normalize "${GIT}/../fpga/cores/ups_xadc.xci" ]      \
+    [file normalize "${GIT}/../fpga/cores/ps_ila.xci.xci" ] \
 ]
 set imported_files [import_files -fileset sources_1 $files]
 
@@ -189,6 +192,14 @@ if { ![get_property "is_locked" $file_obj] } {
 }
 
 set file "ups_xadc/ups_xadc.xci"
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
+set_property -name "registered_with_manager" -value "1" -objects $file_obj
+if { ![get_property "is_locked" $file_obj] } {
+  set_property -name "synth_checkpoint_mode" -value "Singular" -objects $file_obj
+}
+
+set file "ps_ila/ps_ila.xci"
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
 set_property -name "registered_with_manager" -value "1" -objects $file_obj
