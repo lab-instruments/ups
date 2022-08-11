@@ -129,33 +129,58 @@ echo
 #  Build U-Boot
 # ------------------------------------------------------------------------------
 if [ $BUILD_ALL -eq 1 ] || [ $BUILD_UBOOT -eq 1 ]; then
+    # Print Build Command
+    disp "BUILD CMD: ./build-uboot.sh --build_dir=${BD} --log_dir=${LD} --deploy_dir=${DD} --board=\"coraz7\"" 2
+
+    # Run Build Command
     ./build-uboot.sh --build_dir=${BD} --log_dir=${LD} --deploy_dir=${DD} --board="coraz7"
+
 fi
 
 # ------------------------------------------------------------------------------
 #  Build FPGA Hardware
 # ------------------------------------------------------------------------------
 if [ $BUILD_ALL -eq 1 ] || [ $BUILD_FPGA_HW -eq 1 ]; then
+    # Print Build Command
+    disp "BUILD CMD: ./build-fpga-hw.sh --build_dir=${BD} --log_dir=${LD} --deploy_dir=${DD} --sdk_dir=${SD} --board=\"coraz7\"" 2
+
+    # Run Build Command
     ./build-fpga-hw.sh --build_dir=${BD} --log_dir=${LD} --deploy_dir=${DD} --sdk_dir=${SD} --board="coraz7"
+
 fi
 
 # ------------------------------------------------------------------------------
 #  Build FPGA SDK
 # ------------------------------------------------------------------------------
 if [ $BUILD_ALL -eq 1 ] || [ $BUILD_FPGA_SW -eq 1 ]; then
+    # Print Build Command
+    disp "BUILD CMD: ./build-fpga-sdk.sh --sdk_dir=${SD} --log_dir=${LD} --deploy_dir=${DD}" 2
+
+    # Run Build Command
     ./build-fpga-sdk.sh --sdk_dir=${SD} --log_dir=${LD} --deploy_dir=${DD}
+
 fi
 
 # ------------------------------------------------------------------------------
 #  Build FPGA SDK
 # ------------------------------------------------------------------------------
 if [ $BUILD_ALL -eq 1 ] || [ $BUILD_BR -eq 1 ]; then
+    # Print Build Command
+    disp "BUILD CMD: ./build-br.sh --build_dir=${BD} --conf_dir=${CDB} --log_dir=${LD} --deploy_dir=${DD}" 2
+
+    # Run Build Command
     ./build-br.sh --build_dir=${BD} --conf_dir=${CDB} --log_dir=${LD} --deploy_dir=${DD}
+
 fi
 
 # ------------------------------------------------------------------------------
 #  Run Finalize Script
 # ------------------------------------------------------------------------------
 if [ $BUILD_ALL -eq 1 ] || [ $FINALIZE -eq 1 ]; then
+    # Print Build Command
+    disp "BUILD CMD: ./finalize.sh --log_dir=${LD} --deploy_dir=${DD}" 2
+
+    # Run Build Command
     ./finalize.sh --log_dir=${LD} --deploy_dir=${DD}
+
 fi
