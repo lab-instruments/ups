@@ -75,9 +75,9 @@ create_project ${PROJ_NAME} ${PROJ_PATH} -force
 set obj [current_project]
 
 if { ${BOARD_NAME} == "artyz7" } {
-    set_property -name "board_part" -value "digilentinc.com:arty-z7-20:part0:1.0" -objects $obj
+    set_property -name "board_part" -value "digilentinc.com:arty-z7-20:part0:1.1" -objects $obj
 } else {
-    set_property -name "board_part" -value "digilentinc.com:cora-z7-10:part0:1.0" -objects $obj
+    set_property -name "board_part" -value "digilentinc.com:cora-z7-10:part0:1.1" -objects $obj
 }
 
 # Create 'sources_1' Fileset

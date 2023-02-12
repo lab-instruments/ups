@@ -69,6 +69,7 @@ for i in "$@" ; do
 
         *)
             echo "Incorrect Command Line Argument .. ${i}"
+            usage
             exit 1
             ;;
 
@@ -78,6 +79,7 @@ done
 # Check if Card Dev is Defined
 if [ -z ${DEV} ]; then
     echo "Card DEV not defined .. Exit."
+    usage
     exit 1
 fi
 

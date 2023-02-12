@@ -147,11 +147,11 @@ module ups_ctrl(
     logic [11:0]   adc_reg_l;
 
     // Run Mode Control Registers
-    logic [31:0]   run_pre_cnt_l;
-    logic [31:0]   run_pls_cnt_l;
-    logic [31:0]   run_post_cnt_l;
-    logic [31:0]   run_loop_l;
-    logic [31:0]   run_cnt_l;
+    logic [39:0]   run_pre_cnt_l;
+    logic [39:0]   run_pls_cnt_l;
+    logic [39:0]   run_post_cnt_l;
+    logic [39:0]   run_loop_l;
+    logic [39:0]   run_cnt_l;
 
     // Pinch Valve Internal Signal
     logic          pv_l;
