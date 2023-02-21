@@ -157,12 +157,12 @@ set_property -name "top" -value "ups" -objects $obj
 
 # Add ILA
 set obj [get_filesets sources_1]
-set files [list                                                \
-    [file normalize "${GIT}/../fpga/cores/adc_ila.xci" ]       \
-    [file normalize "${GIT}/../fpga/cores/dac_ila.xci" ]       \
-    [file normalize "${GIT}/../fpga/cores/data_ila.xci" ]      \
-    [file normalize "${GIT}/../fpga/cores/ups_xadc.xci" ]      \
-    [file normalize "${GIT}/../fpga/cores/ups_ps_ila.xci" ]        \
+set files [list                                                         \
+    [file normalize "${GIT}/../fpga/cores/cora_07s/adc_ila.xci" ]       \
+    [file normalize "${GIT}/../fpga/cores/cora_07s/dac_ila.xci" ]       \
+    [file normalize "${GIT}/../fpga/cores/cora_07s/data_ila.xci" ]      \
+    [file normalize "${GIT}/../fpga/cores/cora_07s/ups_xadc.xci" ]      \
+    [file normalize "${GIT}/../fpga/cores/cora_07s/ups_ps_ila.xci" ]    \
 ]
 set imported_files [import_files -fileset sources_1 $files]
 
