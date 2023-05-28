@@ -112,7 +112,7 @@ module ups_ps(
 
             if(drdy_l == 1'b1) begin
                 // Register Channel into Address
-                data_l         <= dout_l[15:4];
+                data_l         <= dout_l;
 
                 // Issue Read Enable
                 dv_l           <= 1'b1;
