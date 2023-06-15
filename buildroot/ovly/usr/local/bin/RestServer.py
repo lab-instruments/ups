@@ -84,6 +84,24 @@ class RestServer:
         # Version Node
         self.app.route('/ver', status='GET', callback=self.get_ver)
 
+        # Reset Route
+        self.app.route('/reset', method='PUT', callback=self.set_reset)
+
+    # --------------------------------------------------------------------------
+    #  RESET Control
+    # --------------------------------------------------------------------------
+    # Set STOP Values
+    def set_reset(self):
+        # Log Request
+        log.info('Set RESET request')
+
+        # Initiate Stop
+        self.hal.set_reset()
+
+        # Create Response
+        resp = {'STATUS': 0}
+        return HTTPResponse(status=200, body=resp)
+
     # --------------------------------------------------------------------------
     #  Get Version
     # --------------------------------------------------------------------------

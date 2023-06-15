@@ -80,6 +80,11 @@ class Hal:
         self.mmap_ctrl.seek(36)
         self.mmap_ctrl.write(struct.pack('I', 0))
 
+    def set_reset(self):
+        # Write Reset Interface Strobe
+        self.mmap_ctrl.seek(40)
+        self.mmap_ctrl.write(struct.pack('I', 0))
+
     def set_led(self, val):
         # Write LED Memory Map Word
         self.mmap_led.seek(0)

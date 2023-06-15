@@ -11,9 +11,15 @@ module ups_por(
     input          clk,
 
     // -------------------------------------------------------------------------
-    //  Power on Reset
+    //  Clocks
     // -------------------------------------------------------------------------
-    output         por_n
+    input          mode_change,
+
+    // -------------------------------------------------------------------------
+    //  Resets
+    // -------------------------------------------------------------------------
+    output         por_n,
+    output         ext_rst_n
 
 );
 
@@ -25,12 +31,15 @@ module ups_por(
     // -------------------------------------------------------------------------
     // State Variable
     logic         por_n_l              = 1'b1;
-    logic [ 7:0]  por_cnt_l            = 'b0;
+    logic         ext_rst_n_l          = 1'b1;
+    logic [ 7:0]  por_cnt_l            = 8'h0;
+    logic [ 7:0]  ext_cnt_l            = 8'h0;
 
     // -------------------------------------------------------------------------
     //  Pin Assignment Statements
     // -------------------------------------------------------------------------
     assign por_n                       = por_n_l;                               // Power on Reset Assign
+    assign ext_rst_n                   = por_n_l & ext_rst_n_l;                 // External Reset Assign
 
     // -------------------------------------------------------------------------
     //  Generate POR
@@ -42,6 +51,24 @@ module ups_por(
 
         end else begin
             por_n_l                    <= 1'b1;
+
+        end
+    end
+
+    // -------------------------------------------------------------------------
+    //  Generate External Reset
+    // -------------------------------------------------------------------------
+    always @(posedge clk) begin : EXT_RST_GENERATOR
+        if (mode_change == 1'b1) begin
+            ext_cnt_l                  <= 8'h0;
+            ext_rst_n_l                <= 1'b0;
+
+        end else if (ext_cnt_l < 8'hFF) begin
+            ext_cnt_l                  <= ext_cnt_l + 1'b1;
+            ext_rst_n_l                <= 1'b0;
+
+        end else begin
+            ext_rst_n_l                <= 1'b1;
 
         end
     end
